@@ -1,33 +1,32 @@
 # cs1710 Final Project:: Kitchen Flow
 
-A little about what we are modeling:
+What we are modeling: 
 
-The team - Lauren, lilliana and Jacob - all worked at resturants dueing the COVID-19 pandemic. Now for out final project, we will be modeling a resturant to learn more about the complexities of the resturant kitchen flow! Given a normal sit-down-and-order restaurant that has different table sizes, a limited kitchen staff, and a menu of appetizers and main course meals, we want to model that using Forge. In modeling the kitchen flow, we want to see how appetizers and main meals come out for small vs. big groups. In our model, we will explore how different customer services strategies changes the sucess of the resturant. 
+The team - Lauren, Lilliana, and Jacob - all worked at restaurants during the COVID-19 pandemic. Now for our final project, we will be modeling a restaurant to learn more about the complexities of the restaurant kitchen flow! Given a normal sit-down-and-order restaurant that has different table sizes, a limited kitchen staff, and a menu of appetizers and main course meals, we want to model that using Forge. In modeling the kitchen flow, we want to see how appetizers and main meals come out for small vs. big groups. In our model, we will explore how different customer service strategies change the success of the restaurant. 
 
 COMPONENTS: 
 
-PERSON 
-- Customer
-- Chef
-- Waiter
+PERSON (abstract sig)
+- Customer (extends person)
+- Chef (extends person)
+- Waiter (extends person)
 
-TABLES 
+TABLES (sig)
 - Availability
-- Orders [Dishes/Status: look into the array for] 
-- Server
+- Orders (sig)
+- Server 
 - Customers
+- Dish Type (enum) (reach item)
 
-KITCHEN
+KITCHEN (sig)
 - Queue
-- Chefs
-- Orders [Dishes]
+- Chef
+- Orders
 - Tables
 
-Computer Science Models 
-
-Kitchen Queue
+We will engage with Computer Science Models in our Kitchen Queue 
 - the first iteration of the kitchen queue will be a first in first out that takes in orders
-- the second interation of the kitchen queue will be a priority based queue that takes in tables with different orders 
+- the second iteration of the kitchen queue will be a priority-based queue that takes in tables with different orders 
   
 Questions from Tim: 
 
