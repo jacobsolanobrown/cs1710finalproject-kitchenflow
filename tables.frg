@@ -6,6 +6,7 @@ abstract sig Person {}
 sig Customer extends Person {
   // can either be empty or contain exactly one
   myTableNumber: lone Table 
+  //should each customer have an order?? instead of having orders in the Table sig
 }
 
 abstract sig CustomerStatus {
@@ -14,7 +15,7 @@ abstract sig CustomerStatus {
 one sig Waiting, Seated, Ordered, Ready4Check extends CustomerStatus {}
 
 sig Server extends Person {
-  // tables: set Table
+  mytables: set Table
   //not sure if we need this
   // activeOrders: set Dish
 }
@@ -33,44 +34,59 @@ abstract sig TableStatus {
 one sig Available, Full extends TableStatus {}
 
 /*
-Initializes tables at the beginning of the day --> they are all available with no one at them!  
+Ensures that each state is valid - no crazy instances
+--> Tables are either Available OR Full | can't be both
+--> Customers are either Waiting or Seated or Ordered or Ready4Check | can't be in more than one 
+--> Table numbers must be positive/in a specific range [1-5]
+--> Each Table should have a unique table number
+--> ?? need to state how many people are in the resturant 
 */
 pred valid_state {
-  -- Tables are either full or occupied, cannot be both
+  --> Tables are either full or occupied, cannot be both
   Table = Available.tables + Full.tables
   no t : Table | t in Available.tables and t in Full.tables
 
-  -- Customers are either waiting for a table, seated, ordered or ready for the check, TODO: cant be both
+  --> Customers are either waiting for a table, seated, ordered or ready for the check
   Customer = Waiting.customersInStatus + Seated.customersInStatus + Ordered.customersInStatus + Ready4Check.customersInStatus
+  // TODO: cant be both - ugh this is gonna be like 7 lines of math :/
 
- -- tables numbers cannot be negative / need to be in a specific range (1-5)
+ --> Tables numbers cannot be negative / need to be in a specific range (1-5)
+ all t: Table | t.tableNumber > 0 and t.tableNumber < 6
 
-
-}
-
-pred table_init {
-  // table init specs: 
-  // - each table has a unique table number [1-X]
-  // - each table is avaibale 
-  // - no customers are at any table
-
-  // each table is avaibale
-  Table = Available.tables + Full.tables
-  Table = Available.tables
-
-  // no customers at any table & no customers have an assigned table number
-  all c: Customer | no c.tn
-  #{c: Customer | c in Table.customers} = 0
-
-  //each table has a unique table #
+ --> Each table has a unique table #
   all disj t1, t2: Table | {
     //assign unique table number 
     //TODO: limit table number scope?
-    t1.tableNumber > 0 implies {
+    (t1.tableNumber > 0 and t1.tableNumber  < 6) implies {
     t1.tableNumber != t2.tableNumber
     }
   }
 }
+
+/*
+Initializes Resturant at the beginning of the day | Opening State 
+--> All Tables are available
+--> All Customers are Waiting (none are in the resturant yet)
+--> The kitchen queues should be empty 
+*/
+pred table_init {
+  --> Each table is avaibale
+  Table = Available.tables
+
+  --> No customers at any table & no customers have an assigned table number: MIGHT NEED TO FIX 
+  all c: Customer | {
+    c in Available.tables
+  }
+  
+  // not sure if i need this?
+  #{c: Customer | c in Table.customersAtTable} = 0
+
+
+  --> TODO: Kitchen queue should be empty
+}
+
+//TODO: how to transition between states in a manner where Waiting -> Seated -> Ordered -> Ready4Check
+// use the next state ' notation but that can we do with that 
 
 // minimum that each table orders just one order of either a burger, salas, or chicktenders
 pred dishOrders {
@@ -86,7 +102,9 @@ pred dishOrders {
 }
 
 pred table_setup {
-  valid_table_init
+  valid_state
+  table_init
+
 }
 
 run {table_setup} for 5 Int, exactly 4 Table
