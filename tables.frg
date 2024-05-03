@@ -11,7 +11,8 @@ sig Customer extends Person {
 
 sig Party {
   people: set Customer,
-  size: one Int
+  size: one Int, 
+  spot: one Table
 }
 
 abstract sig CustomerStatus {
@@ -112,19 +113,25 @@ pred table_init {
   --> TODO: Kitchen queue should be empty
 }
 // matches table to group size
-pred find_table[p: Party] {
-  
-  all t: Table {
-    t in Available.tables implies p.size <= t.capacity
+pred find_table[p: Party, openTables: set Table] { 
+  all t: openTables{
+    {p.size <= t.capacity} 
   }
+  all c: p.People {
+    c.myTableNumber = 
+
+  }
+
 }
 
-// seats customers at table
-pred occupy_table {
 
+// seats customers at table
+pred occupy_table[p: Party] {
+  find_table[p, Available.tables]
   all t: Table, p: Party | { 
-        #{c: Customer | c in p.people} <= t.capacity
+      #{c: Customer | c in p.people} <= t.capacity
     }
+
 }
 
 //unseats customers at table 
@@ -152,8 +159,6 @@ pred table_setup {
   valid_state
   table_init
   server_init
-  occupy_table
-  //find_table
 }
 
 run {table_setup} for 5 Int, exactly 4 Table
