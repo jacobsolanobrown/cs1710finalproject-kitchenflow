@@ -16,6 +16,12 @@ sig Customer extends Person {
   //should each customer have an order?? instead of having orders in the Table sig
 }
 
+abstract sig CustomerStatus {
+   customersInStatus: set Customer
+}
+
+one sig Waiting, Seated, Ordered, Ready4Check extends CustomerStatus {} //state changes
+
 sig Server extends Person {
   myTables: set Table
   //not sure if we need this
@@ -24,7 +30,8 @@ sig Server extends Person {
 
 sig Table {
   tableNumber: one Int,
-  customersAtTable: set Customer
+  customersAtTable: set Customer, 
+  capacity: one Int
   // server: one Server,
   // orders: set Dish,
   // price: lone Int
@@ -89,6 +96,7 @@ Initializes Resturant at the beginning of the day | Opening State
 --> All Tables are available
 --> All Customers are Waiting (none are in the resturant yet)
 --> The kitchen queues should be empty 
+--> setting capacity to specified range {2, 4}
 */
 pred table_init {
   --> Each table is avaibale
@@ -99,10 +107,34 @@ pred table_init {
     c in Available.tables
   }
   
-  // not sure if i need this?
+  all t: Table | {
+    t.capacity = 2 or t.capacity = 4
+  }
+
+  // when the place opens, no one is at the table yet, they are all waiting
   #{c: Customer | c in Table.customersAtTable} = 0
 
   --> TODO: Kitchen queue should be empty
+}
+// matches table to group size
+pred find_table[p: Party] {
+  
+  all t: Table {
+    t in Available.tables implies p.size <= t.capacity
+  }
+}
+
+// seats customers at table
+pred occupy_table {
+
+  all t: Table, p: Party | { 
+        #{c: Customer | c in p.people} <= t.capacity
+    }
+}
+
+//unseats customers at table 
+pred vacate_table {
+
 }
 
 //TODO: how to transition between states in a manner where Waiting -> Seated -> Ordered -> Ready4Check
@@ -142,7 +174,7 @@ pred table_setup {
   valid_state
   table_init
   server_init
-  always customerTransistion
+
 }
 
 run {table_setup} for 5 Int, exactly 4 Table
