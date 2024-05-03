@@ -3,17 +3,18 @@ option problem_type temporal
 
 abstract sig Person {}
 
-sig Customer extends Person {
-  // can either be empty or contain exactly one
-  myTableNumber: lone Table 
-  //should each customer have an order?? instead of having orders in the Table sig
-}
-
 abstract sig CustomerStatus {
-   customersInStatus: set Customer
+  //  customersInStatus: set Customer
 }
 
 one sig Waiting, Seated, Ordered, Ready4Check extends CustomerStatus {} //state changes
+
+sig Customer extends Person {
+  // can either be empty or contain exactly one
+  myTableNumber: lone Table, 
+  status: one CustomerStatus
+  //should each customer have an order?? instead of having orders in the Table sig
+}
 
 sig Server extends Person {
   myTables: set Table
@@ -35,7 +36,6 @@ abstract sig TableStatus {
 one sig Available, Full extends TableStatus {} // state changes 
 
 
-
 /*
 Ensures that each state is valid - no crazy instances
 --> Tables are either Available OR Full | can't be both
@@ -50,7 +50,7 @@ pred valid_state {
   no t : Table | t in Available.tables and t in Full.tables
 
   --> Customers are either waiting for a table, seated, ordered or ready for the check
-  Customer = Waiting.customersInStatus + Seated.customersInStatus + Ordered.customersInStatus + Ready4Check.customersInStatus
+  // Customer = Waiting.customersInStatus + Seated.customersInStatus + Ordered.customersInStatus + Ready4Check.customersInStatus
   // TODO: cant be both - ugh this is gonna be like 7 lines of math :/
 
  --> Tables numbers cannot be negative / need to be in a specific range (1-5)
@@ -79,6 +79,11 @@ pred server_init {
     no t: Table | t in s1.myTables and t in s2.myTables // this might be better 
   }
 }
+
+pred sit_down[] {
+
+}
+
 /*
 Initializes Resturant at the beginning of the day | Opening State 
 --> All Tables are available
@@ -97,12 +102,28 @@ pred table_init {
   // not sure if i need this?
   #{c: Customer | c in Table.customersAtTable} = 0
 
-
   --> TODO: Kitchen queue should be empty
 }
 
 //TODO: how to transition between states in a manner where Waiting -> Seated -> Ordered -> Ready4Check
 // use the next state ' notation but that can we do with that 
+
+pred customerTransistion {
+  all c: Customer | {
+    // some changed: CustomerStatus | {
+      c.status = Waiting => c.status' = Seated
+      c.status = Seated => c.status' = Ordered
+      c.status = Ordered => c.status' = Ready4Check
+      // }
+  }
+}
+
+  // some changed: CustomerStatus | {
+  //       changed.color = Red => changed.color' = Green
+  //       changed.color = Yellow => changed.color' = Red 
+  //       changed.color = Green => changed.color' = Yellow 
+  //       all other: Light-changed | other.color = other.color' } 
+  // }
 
 // minimum that each table orders just one order of either a burger, salas, or chicktenders
 pred dishOrders {
@@ -121,7 +142,7 @@ pred table_setup {
   valid_state
   table_init
   server_init
-
+  always customerTransistion
 }
 
 run {table_setup} for 5 Int, exactly 4 Table
