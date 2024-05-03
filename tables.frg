@@ -121,7 +121,6 @@ pred table_setup {
   valid_state
   table_init
   server_init
-
 }
 
 run {table_setup} for 5 Int, exactly 4 Table
