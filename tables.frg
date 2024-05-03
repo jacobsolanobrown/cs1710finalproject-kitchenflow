@@ -75,7 +75,6 @@ pred server_init {
     s2.tables not in s1.tables
     no t: Table | t in s1.tables and t in s2.tables // this might be better 
   }
-
 }
 /*
 Initializes Resturant at the beginning of the day | Opening State 
