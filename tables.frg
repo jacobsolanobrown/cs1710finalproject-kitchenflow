@@ -10,7 +10,8 @@ sig Customer extends Person {
 }
 
 sig Party {
-  people: set Customer
+  people: set Customer,
+  size: one Int
 }
 
 abstract sig CustomerStatus {
@@ -110,13 +111,17 @@ pred table_init {
 
   --> TODO: Kitchen queue should be empty
 }
-
-pred find_available_table {
-
+// matches table to group size
+pred find_table[p: Party] {
+  
+  all t: Table {
+    t in Available.tables implies p.size <= t.capacity
+  }
 }
 
 // seats customers at table
 pred occupy_table {
+
   all t: Table, p: Party | { 
     one c: Int {
         c = t.capacity
@@ -150,6 +155,8 @@ pred table_setup {
   valid_state
   table_init
   server_init
+  occupy_table
+  //find_table
 }
 
 run {table_setup} for 5 Int, exactly 4 Table
