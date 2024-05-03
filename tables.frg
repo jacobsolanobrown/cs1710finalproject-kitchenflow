@@ -12,10 +12,11 @@ sig Customer extends Person {
 abstract sig CustomerStatus {
    customersInStatus: set Customer
 }
-one sig Waiting, Seated, Ordered, Ready4Check extends CustomerStatus {}
+
+one sig Waiting, Seated, Ordered, Ready4Check extends CustomerStatus {} //state changes
 
 sig Server extends Person {
-  mytables: set Table
+  myTables: set Table
   //not sure if we need this
   // activeOrders: set Dish
 }
@@ -31,7 +32,9 @@ sig Table {
 abstract sig TableStatus {
    tables: set Table
 }
-one sig Available, Full extends TableStatus {}
+one sig Available, Full extends TableStatus {} // state changes 
+
+
 
 /*
 Ensures that each state is valid - no crazy instances
@@ -61,6 +64,7 @@ pred valid_state {
     t1.tableNumber != t2.tableNumber // I think this is better 
   }
 }
+
 // not more servers than tables
 // not more than one to a table
 pred server_init {
@@ -71,9 +75,8 @@ pred server_init {
   }
 
   all disj s1, s2: Server | {
-    s1.tables not in s2.tables 
-    s2.tables not in s1.tables
-    no t: Table | t in s1.tables and t in s2.tables // this might be better 
+    s1.myTables != s2.myTables
+    no t: Table | t in s1.myTables and t in s2.myTables // this might be better 
   }
 }
 /*
@@ -117,6 +120,7 @@ pred dishOrders {
 pred table_setup {
   valid_state
   table_init
+  server_init
 
 }
 
