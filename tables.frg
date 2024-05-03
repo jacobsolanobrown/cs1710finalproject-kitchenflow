@@ -12,7 +12,8 @@ sig Customer extends Person {
 abstract sig CustomerStatus {
    customersInStatus: set Customer
 }
-one sig Waiting, Seated, Ordered, Ready4Check extends CustomerStatus {}
+
+one sig Waiting, Seated, Ordered, Ready4Check extends CustomerStatus {} //state changes
 
 sig Server extends Person {
   myTables: set Table
@@ -31,7 +32,9 @@ sig Table {
 abstract sig TableStatus {
    tables: set Table
 }
-one sig Available, Full extends TableStatus {}
+one sig Available, Full extends TableStatus {} // state changes 
+
+
 
 /*
 Ensures that each state is valid - no crazy instances
