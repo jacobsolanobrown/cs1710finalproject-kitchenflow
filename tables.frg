@@ -61,7 +61,22 @@ pred valid_state {
     t1.tableNumber != t2.tableNumber // I think this is better 
   }
 }
+// not more servers than tables
+// not more than one to a table
+pred server_init {
+  valid_state implies {
+    all s: Server, t: Table | {
+      #{s} <= #{t}
+    }
+  }
 
+  all disj s1, s2: Server | {
+    s1.tables not in s2.tables 
+    s2.tables not in s1.tables
+    no t: Table | t in s1.tables and t in s2.tables // this might be better 
+  }
+
+}
 /*
 Initializes Resturant at the beginning of the day | Opening State 
 --> All Tables are available
