@@ -57,9 +57,8 @@ pred valid_state {
   all disj t1, t2: Table | {
     //assign unique table number 
     //TODO: limit table number scope?
-    (t1.tableNumber > 0 and t1.tableNumber  < 6) implies {
-    t1.tableNumber != t2.tableNumber
-    }
+    // previously, t1.tableNumber > 0 and t1.tableNumber < 6 implies 
+    t1.tableNumber != t2.tableNumber // I think this is better 
   }
 }
 
