@@ -123,11 +123,8 @@ pred find_table[p: Party] {
 pred occupy_table {
 
   all t: Table, p: Party | { 
-    one c: Int {
-        c = t.capacity
-        #{c: Customer | c in p.people} <= c
+        #{c: Customer | c in p.people} <= t.capacity
     }
-  }
 }
 
 //unseats customers at table 
