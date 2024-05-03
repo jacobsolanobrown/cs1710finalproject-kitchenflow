@@ -1,6 +1,4 @@
-#lang forge
-
-option problem_type temporal // ? 
+#lang forge/temporal
 
 ---------- Definitions ----------
 sig Queue {
@@ -38,7 +36,7 @@ pred enqueue[q: one Queue, order: one Dish] {
     }
 }
 
-// deque a dish 
+// dequeue a dish 
 // pred dequeue[q: one Queue] { 
 //     // the tail is nothing (FIFO)
 //     q.tail != none
@@ -64,8 +62,7 @@ pred wellformed {
     // a dish cannot point to itself as next 
     // a dish next cannot be reflexive 
     some order: Dish | {
-        order not in order.^next
-
+        order.next != order
     }
 }
 
@@ -73,7 +70,7 @@ pred wellformed {
 
 pred kitchenSetup {
     some d: Dish | {
-        ///d in satCustomers.beforeOrder implies {
+        ///d in satCustomers.beforeOrder implies {5
             some kitchenQ: Queue | {
                 enqueue[kitchenQ, d]
             }
