@@ -9,6 +9,10 @@ sig Customer extends Person {
   //should each customer have an order?? instead of having orders in the Table sig
 }
 
+sig Party {
+  people: set Customer
+}
+
 abstract sig CustomerStatus {
    customersInStatus: set Customer
 }
@@ -105,6 +109,25 @@ pred table_init {
 
 
   --> TODO: Kitchen queue should be empty
+}
+
+pred find_available_table {
+
+}
+
+// seats customers at table
+pred occupy_table {
+  all t: Table, p: Party | { 
+    one c: Int {
+        c = t.capacity
+        #{c: Customer | c in p.people} <= c
+    }
+  }
+}
+
+//unseats customers at table 
+pred vacate_table {
+
 }
 
 //TODO: how to transition between states in a manner where Waiting -> Seated -> Ordered -> Ready4Check
