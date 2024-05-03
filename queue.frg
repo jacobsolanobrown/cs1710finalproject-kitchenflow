@@ -4,14 +4,14 @@ option problem_type temporal
 
 ---------- Definitions ----------
 sig Queue {
-    var tail : lone Order
+    var tail : lone Vehicle
 }
 
 sig Vehicle {
-    var next : lone Order
+    var next : lone Vehicle
 }
 
-pred enqueue[q: one Queue, e: one Order] {
+pred enqueue[q: one Queue, e: one Vehicle] {
     (q.tail = none)
         => q.tail' = e and e.next' = none
     (some q.tail and no q.tail.next) => {
@@ -42,7 +42,7 @@ pred dequeue[q: one Queue] {
 --------------- Verifications ----------------
 
 pred welvallFormed {
-    all s: Order | {
+    all s: Vehicle | {
         s not in s.^next
         s not in Queue.tail.*next => {
             no s.next
