@@ -1,5 +1,8 @@
 # cs1710 Final Project:: Kitchen Flow
 
+TODO: write short summary for a few stakeholders in ReadMe!  
+TODO: demo day --> Create a visual via slides to aid in the presentation | Make it fun 
+
 What we are modeling: 
 
 The team - Lauren, Lilliana, and Jacob - all worked at restaurants during the COVID-19 pandemic. Now for our final project, we will be modeling a restaurant to learn more about the complexities of the restaurant kitchen flow! Given a normal sit-down-and-order restaurant that has different table sizes, a limited kitchen staff, and a menu of appetizers and main course meals, we want to model that using Forge. In modeling the kitchen flow, we want to see how appetizers and main meals come out for small vs. big groups. In our model, we will explore how different customer service strategies change the success of the restaurant. 
@@ -16,7 +19,7 @@ TABLES (sig)
 - Orders (sig)
 - Server 
 - Customers
-- Dish Type (enum) (reach item)
+- Dish Type (enum) (each item)
 
 KITCHEN (sig)
 - Queue
