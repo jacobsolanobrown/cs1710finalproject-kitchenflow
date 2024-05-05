@@ -12,7 +12,6 @@ sig Customer extends Person {
   //should each customer have an order?? instead of having orders in the Table sig
 }
 
-
 sig Party {
   people: set Customer,
   size: one Int, 
@@ -100,19 +99,29 @@ pred customer_init {
     all c: Customer | c.status = Waiting
 
     --> each customer is part of ONE party 
-    // [unsat] all c: Customer | one p: Party | {c in p.people}
+    all c: Customer | some p: Party | {c in p.people}
 }
 
 pred party_init {
   --> each customer is apart of one party
-
   --> party is not at a table yet - denoted by -1
   --> party size is greater than 0 
   --> customer set is equal to party size
   all p: Party | {
     #{p.size} > 0
-    #{p.people} = #{p.size}
-    p.spot = -1
+    #{p.people} = {p.size}
+  }
+
+  all disj p, q: Party | {
+    all c: Customer | {
+      c in p.people => c not in q.people
+    }
+  }
+
+  all disj p, q: Party | {
+    all c: Customer | {
+      c in p.people => c not in q.people
+    }
   }
 }
 
@@ -180,13 +189,13 @@ pred vacate_table {
 //TODO: how to transition between states in a manner where Waiting -> Seated -> Ordered -> Ready4Check
 
 pred customerTransistion {
-  some c: Customer | {
-    // some changed: CustomerStatus | {
+  //?? change to all customer in the party transition 
+  all c: Customer | {
       c.status = Waiting => c.status' = Seated
       c.status = Seated => c.status' = Ordered
       c.status = Ordered => c.status' = Ready4Check
       c.status = Ready4Check => c.status' = Waiting
-      all other: Customer-c | other.status = other.status' }
+      }
 }
 
 
@@ -218,12 +227,12 @@ pred dishOrders {
 // }
 
 // run {table_setup} for 5 Int, exactly 2 Customer, exactly 4 Table
-
 pred beginning_of_day {
   always valid_state
   table_init
   server_init
   customer_init
+  party_init
   always customerTransistion
 }
 
@@ -236,5 +245,5 @@ pred beginning_of_day {
 //   // }
 //   // always customerTransistion
 // }
-run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
+run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
