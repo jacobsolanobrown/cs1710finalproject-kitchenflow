@@ -118,6 +118,11 @@ pred party_init {
     }
   }
 
+  all disj p, q: Party | {
+    all c: Customer | {
+      c in p.people => c not in q.people
+    }
+  }
 }
 
 pred server_init {
@@ -240,5 +245,5 @@ pred beginning_of_day {
 //   // }
 //   // always customerTransistion
 // }
-run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 1 Party
+run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
