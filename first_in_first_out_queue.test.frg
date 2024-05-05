@@ -1,6 +1,6 @@
 #lang forge
 
-open "kitchen_flow.frg"
+open "first_in_first_out_queue.frg"
 
 test suite for valid_state {}
 

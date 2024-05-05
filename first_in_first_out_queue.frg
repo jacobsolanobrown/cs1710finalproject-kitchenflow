@@ -92,7 +92,7 @@ pred wellformed {
     //all dishes in the queue that are not the head or tail need to be linked
     all order: Dish, q: kitchenQueue | {
         --> if the order isnt the head or the tail and is in the queue
-        {(order in q.totalDish and order != q.head and order !=  order != q.tail) => 
+        {(order in q.totalDish and order != q.head and order != q.tail) => 
         --> the order must haev a next and a prev
         (order.next != None and order.prev != None)}
     }
@@ -162,4 +162,5 @@ run {
     always wellformed
     kitchenSetup 
 }  for 6 Dish, 1 kitchenQueue
+
 
