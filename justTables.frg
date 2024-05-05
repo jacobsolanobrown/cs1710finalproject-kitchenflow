@@ -8,7 +8,7 @@ abstract sig Person {}
 sig Customer extends Person {
   // can either be empty or contain exactly one
   // myTableNumber: lone Table, 
-  status: one CustomerStatus
+  var status: one CustomerStatus
   //should each customer have an order?? instead of having orders in the Table sig
 }
 
@@ -22,6 +22,7 @@ pred customerTransistion {
       c.status = Waiting => c.status' = Seated
       c.status = Seated => c.status' = Ordered
       c.status = Ordered => c.status' = Ready4Check
+      c.status = Ready4Check => c.status' = Waiting
       all other: Customer-c | other.status = other.status' }
 }
 

@@ -8,7 +8,7 @@ abstract sig Person {}
 sig Customer extends Person {
   // can either be empty or contain exactly one
   myTableNumber: lone Table, 
-  status: one CustomerStatus
+  var status: one CustomerStatus
   //should each customer have an order?? instead of having orders in the Table sig
 }
 
@@ -16,7 +16,6 @@ sig Customer extends Person {
 sig Party {
   people: set Customer,
   size: one Int, 
-  size: one Int,
   spot: one Table
 }
 
@@ -131,34 +130,6 @@ pred server_init {
   }
 }
 
-/*
-Initializes Resturant at the beginning of the day | Opening State 
---> All Tables are available
---> All Customers are Waiting (none are in the resturant yet)
---> The kitchen queues should be empty 
---> setting capacity to specified range {2, 4}
-*/
-pred table_init {
-  --> Each table is avaibale
-  Table = Available.tables
-
-  --> No customers at any table & no customers have an assigned table number: MIGHT NEED TO FIX 
-  all c: Customer | {
-    c in Available.tables
-  }
-  
-  all t: Table | {
-    t.capacity = 2 or t.capacity = 4
-  }
-
-  // when the place opens, no one is at the table yet, they are all waiting
-  #{c: Customer | c in Table.customersAtTable} = 0
-
-  --> TODO: Kitchen queue should be empty
-}
-// matches table to group size
-
-// =======
 pred find_table[p: Party, openTables: set Table] { 
   all t: openTables{
     {p.size <= t.capacity} 
@@ -213,12 +184,10 @@ pred customerTransistion {
       c.status = Waiting => c.status' = Seated
       c.status = Seated => c.status' = Ordered
       c.status = Ordered => c.status' = Ready4Check
+      c.status = Ready4Check => c.status' = Waiting
       all other: Customer-c | other.status = other.status' }
 }
 
-//       }
-//   }
-// }
 
 // minimum that each table orders just one order of either a burger, salas, or chicktenders
 pred dishOrders {
@@ -253,19 +222,18 @@ pred beginning_of_day {
   always valid_state
   table_init
   server_init
-  always customerTransistion
-
-
-}
-
-run {table_setup} for 5 Int, exactly 4 Table
-  party_init
   customer_init
-  customerTransistion
-  // one t: Available.tables | {
-  //   occupy_table[t]
-  // }
-  // always customerTransistion
+  always customerTransistion
 }
+
+// run {table_setup} for 5 Int, exactly 4 Table
+//   party_init
+//   customer_init
+//   customerTransistion
+//   // one t: Available.tables | {
+//   //   occupy_table[t]
+//   // }
+//   // always customerTransistion
+// }
 run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
 
