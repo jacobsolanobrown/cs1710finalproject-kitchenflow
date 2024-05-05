@@ -108,8 +108,14 @@ pred party_init {
   --> party size is greater than 0 
   --> customer set is equal to party size
   all p: Party | {
-    p.size > 0
-    #{p.people} = p.size
+    #{p.size} > 0
+    #{p.people} = {p.size}
+  }
+
+  all disj p, q: Party | {
+    all c: Customer | {
+      c in p.people => c not in q.people
+    }
   }
 
   all disj p, q: Party | {
@@ -188,7 +194,8 @@ pred customerTransistion {
       c.status = Waiting => c.status' = Seated
       c.status = Seated => c.status' = Ordered
       c.status = Ordered => c.status' = Ready4Check
-      c.status = Ready4Check => c.status' = Waiting}
+      c.status = Ready4Check => c.status' = Waiting
+      }
 }
 
 
