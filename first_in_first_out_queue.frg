@@ -4,7 +4,8 @@
 ---------- Definitions ----------
 sig kitchenQueue {
     var head: lone Dish,
-    var tail: lone Dish 
+    var tail: lone Dish, 
+    totalDish: set Dish, 
 }
 
 sig Dish {
@@ -88,28 +89,39 @@ pred enqueue[q: one kitchenQueue, order: one Dish] {
 pred wellformed {   
     // a dish cannot point to itself as next 
     // a dish next cannot be reflexive 
-    // all order: Dish | {
-    //     order.next != order
-    // }
+
+    //all dishes in the queue that are not the head or tail need to be linked 
+    all order: Dish, q: kitchenQueue | {
+        order != q.head
+        order != q.tail
+        {order in q.totalDish => order.next != None and order.prev != None}
+    }
+
+    all order: Dish | {
+         order.next != order
+    }
+
+    some disj a, b: Dish | {
+        a.next = b => b.prev = a
+    }
 
     // add if no head, then no queue
     all q: kitchenQueue | {
         // there cannot be a queue if there is not a head and a tail 
-        // no q implies {
-        //     no q.head and no q.tail
-        // }
+        some a, b: Dish | {
+            q.head = a
+            q.tail = b 
+        }
         // if there is a head, then the tail has to be nonempty and there cannot be anything prev to that tail 
         (q.head != none) implies {
-            (q.tail' != none) //and (q.head.next' = none)
+            (q.tail != none) //and (q.head.next' = none)
         }
 
-        // if there is a head, then the head has to be nonempty as well
+        // if there is a tail, then the head has to be nonempty as well
         (q.tail != none) implies {
             (q.head != none) //and (q.tail.prev' = none)
         } 
-        // (q.head != none) implies {
-        //     (q.head.next = none)
-        // }
+        
     }
     // all d: Dish | {
     //     d.next != none implies {
