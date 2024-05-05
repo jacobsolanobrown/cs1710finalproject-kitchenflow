@@ -91,11 +91,6 @@ pred wellformed {
     // a dish next cannot be reflexive 
 
     //all dishes in the queue that are not the head or tail need to be linked 
-    all order: Dish, q: kitchenQueue | {
-        order != q.head
-        order != q.tail
-        {order in q.totalDish => order.next != None and order.prev != None}
-    }
 
     all order: Dish | {
          order.next != order
@@ -150,12 +145,10 @@ pred init[q: kitchenQueue] {
 
 pred kitchenSetup {
     some d: Dish | {
-        ///d in satCustomers.beforeOrder implies {5
             some line: kitchenQueue | {
                 myEnqueue[line, d]
             }
-        }
-    //} 
+        } 
 }
 
 
