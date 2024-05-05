@@ -55,9 +55,9 @@ one sig Available, Full extends TableStatus {}
 sig Kitchen {
   var chefs: set Chef, 
   //first in first out 
-  //var orders: one Queue,
+  var orders: one Queue,
   //queue based on something else! 
-  //var tables: one Queue, 
+  var tables: one Queue, 
   var TicketTime: one Int 
 }
 
