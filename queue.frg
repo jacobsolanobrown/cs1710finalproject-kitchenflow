@@ -12,12 +12,12 @@ sig Vehicle {
 }
 
 pred enqueue[q: one Queue, e: one Vehicle] {
-    (q.tail = none)
+    (q.tail = none) // empty queue
         => q.tail' = e and e.next' = none
-    (some q.tail and no q.tail.next) => {
+    (some q.tail and no q.tail.next) => { // one thing in the queue
         q.tail' = e and e.next' = q.tail
     }
-    (some q.tail and some q.tail.next) => {
+    (some q.tail and some q.tail.next) => { // more than one thing in the quue and 
         q.tail' = e
         e.next' = q.tail
         all v: q.tail.*next | {
