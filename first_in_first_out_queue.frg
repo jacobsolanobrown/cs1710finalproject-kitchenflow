@@ -89,8 +89,13 @@ pred enqueue[q: one kitchenQueue, order: one Dish] {
 pred wellformed {   
     // a dish cannot point to itself as next 
     // a dish next cannot be reflexive 
-
-    //all dishes in the queue that are not the head or tail need to be linked 
+    //all dishes in the queue that are not the head or tail need to be linked
+    all order: Dish, q: kitchenQueue | {
+        --> if the order isnt the head or the tail and is in the queue
+        {(order in q.totalDish and order != q.head and order !=  order != q.tail) => 
+        --> the order must haev a next and a prev
+        (order.next != None and order.prev != None)}
+    }
 
     all order: Dish | {
          order.next != order
