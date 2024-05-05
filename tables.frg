@@ -222,7 +222,6 @@ pred dishOrders {
 // }
 
 // run {table_setup} for 5 Int, exactly 2 Customer, exactly 4 Table
-
 pred beginning_of_day {
   always valid_state
   table_init
