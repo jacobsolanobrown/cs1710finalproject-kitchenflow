@@ -12,8 +12,10 @@ sig Customer extends Person {
   //should each customer have an order?? instead of having orders in the Table sig
 }
 
+
 sig Party {
   people: set Customer,
+  size: one Int, 
   size: one Int,
   spot: one Table
 }
@@ -129,6 +131,33 @@ pred server_init {
   }
 }
 
+/*
+Initializes Resturant at the beginning of the day | Opening State 
+--> All Tables are available
+--> All Customers are Waiting (none are in the resturant yet)
+--> The kitchen queues should be empty 
+--> setting capacity to specified range {2, 4}
+*/
+pred table_init {
+  --> Each table is avaibale
+  Table = Available.tables
+
+  --> No customers at any table & no customers have an assigned table number: MIGHT NEED TO FIX 
+  all c: Customer | {
+    c in Available.tables
+  }
+  
+  all t: Table | {
+    t.capacity = 2 or t.capacity = 4
+  }
+
+  // when the place opens, no one is at the table yet, they are all waiting
+  #{c: Customer | c in Table.customersAtTable} = 0
+
+  --> TODO: Kitchen queue should be empty
+}
+// matches table to group size
+
 // =======
 pred find_table[p: Party, openTables: set Table] { 
   all t: openTables{
@@ -139,6 +168,14 @@ pred find_table[p: Party, openTables: set Table] {
   }
 }
 
+// seats customers at table
+pred occupy_table[p: Party] {
+  find_table[p, Available.tables]
+  all t: Table, p: Party | { 
+      #{c: Customer | c in p.people} <= t.capacity
+    }
+
+}
 // seats customers at table
 // pred occupy_table[p: Party] {
 //   find_table[p, Available.tables]
@@ -216,6 +253,12 @@ pred beginning_of_day {
   always valid_state
   table_init
   server_init
+  always customerTransistion
+
+
+}
+
+run {table_setup} for 5 Int, exactly 4 Table
   party_init
   customer_init
   customerTransistion
