@@ -113,7 +113,6 @@ pred table_init {
   --> TODO: Kitchen queue should be empty
 }
 // matches table to group size
-
 pred find_table[p: Party, openTables: set Table] { 
   all t: openTables{
     {p.size <= t.capacity} 
