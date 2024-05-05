@@ -189,12 +189,8 @@ pred customerTransistion {
       c.status = Waiting => c.status' = Seated
       c.status = Seated => c.status' = Ordered
       c.status = Ordered => c.status' = Ready4Check
-<<<<<<< HEAD
       c.status = Ready4Check => c.status' = Waiting
       }
-=======
-      c.status = Ready4Check => c.status' = Waiting}
->>>>>>> e0d8c2cb974186a9bdd6c386dd7ad9866c350d2b
 }
 
 
@@ -232,12 +228,8 @@ pred beginning_of_day {
   table_init
   server_init
   customer_init
-<<<<<<< HEAD
-  always {customerTransistion}
-=======
   party_init
   always customerTransistion
->>>>>>> e0d8c2cb974186a9bdd6c386dd7ad9866c350d2b
 }
 
 // run {table_setup} for 5 Int, exactly 4 Table
