@@ -111,9 +111,16 @@ pred party_init {
   --> customer set is equal to party size
   all p: Party | {
     #{p.size} > 0
-    #{p.people} = #{p.size}
-    p.spot = -1
+    #{p.people} = {p.size}
   }
+
+  all disj p, q: Party | {
+    all c: Customer | {
+      c in p.people => c not in q.people
+    }
+  }
+
+
 }
 
 pred server_init {
@@ -186,7 +193,7 @@ pred customerTransistion {
       c.status = Seated => c.status' = Ordered
       c.status = Ordered => c.status' = Ready4Check
       c.status = Ready4Check => c.status' = Waiting
-      all other: Customer-c | other.status = other.status' }
+      }
 }
 
 
@@ -224,7 +231,7 @@ pred beginning_of_day {
   table_init
   server_init
   customer_init
-  always customerTransistion
+  always {customerTransistion}
 }
 
 // run {table_setup} for 5 Int, exactly 4 Table
