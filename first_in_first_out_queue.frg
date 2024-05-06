@@ -1,6 +1,8 @@
 #lang forge/temporal
 option min_tracelength 5
 
+open "tables.frg"
+
 ---------- Definitions ----------
 sig Queue {
     var tail: lone Dish 
@@ -8,7 +10,7 @@ sig Queue {
 
 sig Dish {
     var next: lone Dish
-    //var value : one Int
+    //var value : set Int TODO: how to model the food items / values of each node 
 }
 
 pred enqueue[q: one Queue, order: one Dish] {
