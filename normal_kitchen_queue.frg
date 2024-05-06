@@ -19,7 +19,7 @@ sig Ticket {
     foodOrder: one Dish
 }
 
-sig Kitchen { // Queue Data Structure
+one sig Kitchen { // Queue Data Structure
     var placedOrder: lone Ticket // tail of the Queue
 }
 
@@ -86,6 +86,13 @@ pred wellformed {
             no next.order
         }
     }
+
+    some order1, order2: Ticket | {
+        all foodItems: Dish | {
+            order1.foodOrder != order2.foodOrder
+        }
+    }
+
 }
 
 ------------ Initial State ------------
@@ -95,13 +102,13 @@ pred init[q: Kitchen] {
     next = none->none  // there is no next yet 
 }
 
-// model without needing to specify/control the next pointer for each state - TODO: how to constrain the next pointer enough without needing to properly specify d2->d1?
+//TODO: how to constrain the next pointer enough without needing to properly specify d2->d1?
+//TODO: make a transitiion betwwen enqueuing 
+//TODO: make a transitiion between dequeuing and serving orders 
+// model without needing to specify/control the next pointer for each state 
 pred kitchenSetup[q: Kitchen] {
-    init[q]
-    some d1, d2, d3: Ticket | {
-        enqueue[q, d1]
-        next_state enqueue[q, d2]
-        next_state next_state enqueue[q, d3]
+    some order: Ticket | {
+        enqueue[q, order]
     }
 }
  
@@ -174,6 +181,7 @@ pred serveOrder {
         }
 }
 
+------------ Run Statements ------------
 -- enqueuing/placing orders example 
 // run {
 //     wellformed
@@ -181,15 +189,17 @@ pred serveOrder {
 // } for 4 Ticket, 1 Kitchen
 
 -- enqueing + dequeuing/serving orders example 
-run {
-    wellformed
-    serveOrder
-} for 2 Ticket, 1 Kitchen
+// run {
+//     wellformed
+//     serveOrder
+// } for 2 Ticket, 1 Kitchen
 
 -- unsat when always wellformed - cant constrain the next pointer 
-// run {
-//     some q: Kitchen | {
-//         wellformed
-//         kitchenSetup[q]
-//     }
-// }  for 3 Ticket, 1 Kitchen
+run {
+    always wellformed
+    init[Kitchen]
+    Table.servedDishes = none
+
+    kitchenSetup[Kitchen]  
+    
+}  for 3 Ticket, 1 Kitchen
