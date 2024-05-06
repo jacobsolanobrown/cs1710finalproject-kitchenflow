@@ -157,12 +157,13 @@ pred find_table[p: Party] {
 
 // seats customers at table -- TODO: 
 pred occupy_table[p: Party] {
-  find_table[p, Available.tables]
   all t: Table, p: Party | { 
       #{c: Customer | c in p.people} <= t.capacity
     }
 
 }
+
+
 // seats customers at table
 // pred occupy_table[p: Party] {
 //   find_table[p, Available.tables]
@@ -262,6 +263,7 @@ pred customers_transition_noParty {
   some p: Party {
     always customerTransistion[p]
   }
+  all p: Party | {occupy_table[p]}
 }
 
 run {customers_transition_noParty} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
