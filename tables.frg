@@ -11,7 +11,8 @@ abstract sig Person {}
 
 sig Customer extends Person {
   // myTableNumber: lone Table, 
-  var status: one CustomerStatus 
+  var status: one CustomerStatus, 
+  
 }
 
 abstract sig CustomerStatus {}
@@ -31,7 +32,6 @@ sig Server extends Person {
 
 sig Table {
   tableNumber: one Int,
-  var customersAtTable: set Customer, 
   capacity: one Int
   // server: one Server,
   // orders: set Dish,
@@ -278,6 +278,9 @@ pred seat[p: Party] {
 }
 
 pred order[p: Party] {
+  // guard (people are at table ? and status of people is seated not waiting ??
+  //no orders at the table already and seated 
+  //lauren has the gaurd 
  all c: Customer | {
     c in p.people => {
        c.status = Seated => c.status' = Ordered
@@ -285,6 +288,8 @@ pred order[p: Party] {
       c.status = Seated => c.status' = Seated
     }
   }
+
+ //  p.spot.orders = DISHES (fill in the dishes here )
 }
 
 pred check_out[p: Party] {
@@ -335,8 +340,6 @@ pred customerTransistion[p: Party] { //WORK ONLY W/SEATED/ORDERED
   }
 }
 
-pred ordering {}
-
 
 // minimum that each table orders just one order of either a burger, salas, or chicktenders
 pred dishOrders {
@@ -359,9 +362,9 @@ pred run_states[p: Party] {
   some c: Customer | { //all is unsat here 
     c in p.people 
     c.status = Waiting => seat[p]
-    //c.status = Seated => order[p]
-    //c.status = Ordered => check_out[p]
-    //c.status = Ready4Check => leave[p]
+    c.status = Seated => order[p]
+    c.status = Ordered => check_out[p]
+    c.status = Ready4Check => leave[p]
   }
 } 
 
@@ -375,7 +378,7 @@ pred beginning_of_day {
   party_init
 }
 
-// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
+run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
 
 pred customers_transition_with_party {
   beginning_of_day
@@ -390,10 +393,9 @@ pred customers_transition_with_party {
 
 pred seat_customers {
   beginning_of_day
-  //one p: Party | {seat[p]}
   some p: Party | {run_states[p]}
 }
 
-run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+//run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
 // 20 max -- covid era 
