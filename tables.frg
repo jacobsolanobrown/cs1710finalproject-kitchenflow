@@ -198,6 +198,8 @@ pred customerTransistion {
       }
 }
 
+pred ordering {}
+
 
 // minimum that each table orders just one order of either a burger, salas, or chicktenders
 pred dishOrders {
@@ -247,3 +249,4 @@ pred beginning_of_day {
 // }
 run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
+// 20 max -- covid era 
