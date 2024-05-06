@@ -2,24 +2,25 @@
 option min_tracelength 5
 
 
----------- Definitions ----------
-
-abstract sig Dish {}
-// menu items 
-one sig Chicken, Burger, Tofu extends Dish {}
+---------------- Definitions ---------------
+--------------- Table & Dishes -------------
 
 one sig Table{
     var servedDishes: set Dish
 }
 
-// Queue Data Structure
-sig Kitchen {
-    var placedOrder: lone Ticket // tail of the Queue
-}
+abstract sig Dish {}
+// menu items 
+one sig Chicken, Burger, Tofu extends Dish {}
 
+---------------- Kitchen ----------------
 sig Ticket {
     var next: lone Ticket,
     foodOrder: one Dish
+}
+
+sig Kitchen { // Queue Data Structure
+    var placedOrder: lone Ticket // tail of the Queue
 }
 
 pred enqueue[q: one Kitchen, order: one Ticket] {
@@ -72,6 +73,7 @@ pred dequeue[q: one Kitchen] {
     } 
 }
 
+------------ Wellformed Kitchen ------------
 pred wellformed {   
     // for all the Tickets
     all order: Ticket | {
@@ -86,6 +88,7 @@ pred wellformed {
     }
 }
 
+------------ Initial State ------------
 // the initial state of the kitchen is empty with no orders yet 
 pred init[q: Kitchen] {
     q.placedOrder = none // no queue 
@@ -101,7 +104,8 @@ pred kitchenSetup[q: Kitchen] {
         next_state next_state enqueue[q, d3]
     }
 }
-
+ 
+------------ Controlled Trace ------------
 pred kitchenFourOrders{
      some order1, order2, order3, order4: Ticket, q: Kitchen | {
             #(order1 + order2 + order3 + order4) = 4
@@ -132,6 +136,7 @@ pred kitchenFourOrders{
         }
 }
 
+------------ Controlled Trace ------------
 pred serveOrder {
          some order1, order2: Ticket, q: Kitchen, t: Table | {
             #(order1 + order2) = 2
