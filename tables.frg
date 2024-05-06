@@ -257,25 +257,24 @@ pred seat[p: Party] {
   --GAURD
   --Party does not have a spot
   p.spot = none 
-
   -- ACTION
-  all c: Customer | {
-    c in p.people => {
+  all c: Customer | { 
+    {c in p.people => {
        c.status = Waiting => c.status' = Seated 
     } else {
-      c.status = Waiting => c.status' = Waiting 
-    } 
+      c.status = Waiting => c.status' = Waiting
+    } } 
   }
 
-  // some t: Table | {
-  //   (t in Available.tables and t.capacity >= p.size) => 
-  //   {
-  //     p.spot' = t
-  //     t.customersAtTable' = p.people 
-  //     Available.tables' = Available.tables - t
-  //     Full.tables' = Full.tables + t
-  //   } 
-  // }
+   some t: Table | {
+     (t in Available.tables and t.capacity >= p.size) => 
+     {
+       p.spot' = t
+       t.customersAtTable' = p.people 
+       Available.tables' = Available.tables - t
+       Full.tables' = Full.tables + t
+     } 
+   }
 }
 
 pred order[p: Party] {
@@ -336,6 +335,8 @@ pred customerTransistion[p: Party] { //WORK ONLY W/SEATED/ORDERED
   }
 }
 
+pred ordering {}
+
 
 // minimum that each table orders just one order of either a burger, salas, or chicktenders
 pred dishOrders {
@@ -350,19 +351,19 @@ pred dishOrders {
   }
 }
 
-pred ordering {
-  //TODO: JACOB hiiii
-  
-}
+//pred ordering {
+  //TODO: JACOB
+//}
 
-pred run_states {
-  some p: Party {
-    seat[p] or 
-    order[p] or 
-    check_out[p] or
-    leave[p]
-  } 
-}
+pred run_states[p: Party] {
+  some c: Customer | { //all is unsat here 
+    c in p.people 
+    c.status = Waiting => seat[p]
+    //c.status = Seated => order[p]
+    //c.status = Ordered => check_out[p]
+    //c.status = Ready4Check => leave[p]
+  }
+} 
 
 --------------- RUN STATEMENTS --------------
 
@@ -378,7 +379,7 @@ pred beginning_of_day {
 
 pred customers_transition_with_party {
   beginning_of_day
-  always {
+   always {
     some p: Party {
       customerTransistion[p]
     }
@@ -389,10 +390,10 @@ pred customers_transition_with_party {
 
 pred seat_customers {
   beginning_of_day
-  always {
-    run_states
-  }
+  //one p: Party | {seat[p]}
+  some p: Party | {run_states[p]}
 }
 
-run {customers_transition_with_party} for 5 Int, exactly 3 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 1 Party
+run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
+// 20 max -- covid era 
