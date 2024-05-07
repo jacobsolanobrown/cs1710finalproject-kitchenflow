@@ -1,10 +1,10 @@
-#lang forge/temporal
-option min_tracelength 5
+#lang forge 
 
+option problem_type temporal 
 
----------------- Definitions ---------------
+//option min_tracelength 5
+
 --------------- Table & Dishes -------------
-
 one sig Table{
     var servedDishes: set Dish
 }
@@ -87,11 +87,11 @@ pred wellformed {
         }
     }
 
-    some order1, order2: Ticket | {
-        all foodItems: Dish | {
-            order1.foodOrder != order2.foodOrder
-        }
-    }
+    // some order1, order2: Ticket | {
+    //     all foodItems: Dish | {
+    //         order1.foodOrder != order2.foodOrder
+    //     }
+    // }
 
 }
 
@@ -112,7 +112,7 @@ pred kitchenSetup[q: Kitchen] {
     }
 }
  
------------- Controlled Trace ------------
+------------ Only Enqueuing Trace ------------
 pred kitchenFourOrders{
      some order1, order2, order3, order4: Ticket, q: Kitchen | {
             #(order1 + order2 + order3 + order4) = 4
@@ -143,7 +143,7 @@ pred kitchenFourOrders{
         }
 }
 
------------- Controlled Trace ------------
+------------ Enqueue and Dequeue Trace ------------
 pred serveOrder {
          some order1, order2: Ticket, q: Kitchen, t: Table | {
             #(order1 + order2) = 2
@@ -182,46 +182,22 @@ pred serveOrder {
 }
 
 ------------ Run Statements ------------
--- enqueuing/placing orders example 
+-- ONLY SHOWS ENQUEUING
 // run {
 //     wellformed
 //     kitchenFourOrders
 // } for 4 Ticket, 1 Kitchen
 
--- enqueing + dequeuing/serving orders example 
-
+-- SHOWS ENQUEUE + DEQUEUE
 // run {
 //     wellformed
 //     serveOrder
 // } for 2 Ticket, 1 Kitchen
 
--- unsat when always wellformed - cant constrain the next pointer 
-run {
-    always wellformed
-    init[Kitchen]
-    Table.servedDishes = none
-
-    kitchenSetup[Kitchen]  
-    
-}  for 3 Ticket, 1 Kitchen
-
-run {
-    some q: kitchenQueue | init[q]
-    always wellformed
-    kitchenSetup 
-}  for 6 Dish, 1 kitchenQueue
-
-
-run {
-    wellformed
-    serveOrder
-} for 2 Ticket, 1 Kitchen
-
--- unsat when always wellformed - cant constrain the next pointer 
+-- UNSAT when always wellformed - cant constrain the next pointer 
 // run {
-//     some q: Kitchen | {
-//         wellformed
-//         kitchenSetup[q]
-//     }
+//     always wellformed
+//     init[Kitchen]
+//     Table.servedDishes = none
+//     kitchenSetup[Kitchen]  
 // }  for 3 Ticket, 1 Kitchen
-
