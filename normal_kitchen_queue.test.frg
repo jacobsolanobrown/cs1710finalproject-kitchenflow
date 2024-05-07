@@ -219,7 +219,7 @@ test suite for wellformed {
 
     // assert common logical statements about wellformed
     assert validWellformed is necessary for wellformed
-    assert notNonvalidWellformed is necessary for wellformed // ? test works but counterexample is just the food 
+    assert notNonvalidWellformed is necessary for wellformed
 
 
     ---- EXAMPLES ---- NOT SUPPORTED IN TEMPORAL SO THEY ARE HERE FOR FUN AND BETTER UNDERSTANDING...
