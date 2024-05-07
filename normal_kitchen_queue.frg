@@ -189,7 +189,6 @@ pred serveOrder {
 // } for 4 Ticket, 1 Kitchen
 
 -- enqueing + dequeuing/serving orders example 
-<<<<<<< HEAD
 // run {
 //     wellformed
 //     serveOrder
@@ -204,16 +203,15 @@ run {
     kitchenSetup[Kitchen]  
     
 }  for 3 Ticket, 1 Kitchen
-=======
+
 run {
-<<<<<<< HEAD:first_in_first_out_queue.frg
     some q: kitchenQueue | init[q]
     always wellformed
     kitchenSetup 
 }  for 6 Dish, 1 kitchenQueue
 
 
-=======
+run {
     wellformed
     serveOrder
 } for 2 Ticket, 1 Kitchen
@@ -225,5 +223,4 @@ run {
 //         kitchenSetup[q]
 //     }
 // }  for 3 Ticket, 1 Kitchen
->>>>>>> 124b82a915f97d03a925287f34dd4d9dd0ec9b7b:normal_kitchen_queue.frg
->>>>>>> 30eb99b1a9df2174b1892e88fe25fb77c12201cf
+
