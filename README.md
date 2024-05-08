@@ -1,5 +1,4 @@
 # Logic 4 Systems Final Project by @lmckeown, @mmack1 & @gsolano
-<ln/>
 # Resturant Flow
 
 TODO: write short summary for a few stakeholders in ReadMe!  
