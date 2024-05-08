@@ -1,4 +1,10 @@
-# cs1710 Final Project:: Kitchen Flow
+# Logic 4 Systems Final Project by @lmckeown, @mmack1 & @gsolano
+<ln/>
+# Resturant Flow
+<ln/>
+<ln/>
+
+
 
 TODO: write short summary for a few stakeholders in ReadMe!  
 TODO: demo day --> Create a visual via slides to aid in the presentation | Make it fun 
