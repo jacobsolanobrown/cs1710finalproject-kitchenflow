@@ -151,7 +151,6 @@ pred serveOrder {
             init[q]
             Table.servedDishes = none
 
-
             // State 1 - 1st order in!
             q.placedOrder' = order1 // just the tail of queue - 1st order in!
             next' = none->none // no next node yet since only one node in queue
@@ -188,7 +187,17 @@ pred serveOrder {
 //     kitchenFourOrders
 // } for 4 Ticket, 1 Kitchen
 
+<<<<<<< Updated upstream
 -- SHOWS ENQUEUE + DEQUEUE
+=======
+-- enqueing + dequeuing/serving orders example 
+run {
+    wellformed
+    serveOrder
+} for 2 Ticket, 1 Kitchen
+
+-- unsat when always wellformed - cant constrain the next pointer 
+>>>>>>> Stashed changes
 // run {
 //     wellformed
 //     serveOrder

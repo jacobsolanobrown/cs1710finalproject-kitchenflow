@@ -25,12 +25,12 @@ sig Server extends Person {
 
 ------------ Dishes / Menu ------------
 
-// abstract sig Dish {
-//    price: one Int
-// }
-// sig Burger extends Dish {}
-// sig Salad extends Dish {}
-// sig ChickTenders extends Dish {}
+abstract sig Dish {
+   price: one Int
+}
+sig Burger extends Dish {}
+sig Salad extends Dish {}
+sig ChickTenders extends Dish {}
 
 ---------------- Table ----------------
 

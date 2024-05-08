@@ -1,6 +1,8 @@
 #lang forge
 option problem_type temporal 
 
+//TODO: take out customersAtTable field
+
 //default trace length is 5 -- could enforce a new max thats a bigger number 
 //use var to make state variable
 
@@ -11,8 +13,7 @@ abstract sig Person {}
 
 sig Customer extends Person {
   // myTableNumber: lone Table, 
-  var status: one CustomerStatus, 
-  
+  var status: one CustomerStatus
 }
 
 abstract sig CustomerStatus {}
@@ -31,10 +32,11 @@ sig Server extends Person {
 ---------------- Table ----------------
 
 sig Table {
+  customersAtTable: set Customer,
   tableNumber: one Int,
-  capacity: one Int
+  capacity: one Int,
   // server: one Server,
-  // orders: set Dish,
+  orders: set Dish
   // price: lone Int
 }
 
@@ -42,6 +44,16 @@ abstract sig TableStatus {
   var tables: set Table
 }
 one sig Available, Full extends TableStatus {} 
+
+---------------- Dish ----------------
+///?? KEEP IN HERE OR IN QUEUE 
+
+abstract sig Dish {
+   price: one Int
+}
+sig Burger extends Dish {}
+sig Salad extends Dish {}
+sig ChickTenders extends Dish {}
 
 /*
 --------------- VALID STATE --------------
@@ -83,6 +95,7 @@ The following preds work together to Initialize Resturant at the beginning of th
 --------------- init tables --------------
 --> All Tables are available
 --> No customers at any table
+--> No orders at the table
 --> Setting capacity to specified range {2, 4}
 
 pred table_init {
@@ -90,6 +103,7 @@ pred table_init {
 
   all t: Table | {
     no c : Customer | c in t.customersAtTable
+    t.orders = none
   }
 
   all t: Table | {
@@ -143,121 +157,19 @@ pred server_init {
   }
 }
 
---------------- RESTURANT MANAGEMENT --------------
+----------- CUSTOMER TRANSITIONS ----------
+------------------- seat ------------------
+--> assigns a customer party, p, to a table in resturant 
 
-// matches table to group size -- TODO
--- tik tack toe transitions
-
-pred seat_group[p: Party] {
-  -- enforce valid 'spot'
-  --> table is available 
-  --> table has enough seats for party
-
-  // (t in Available.tables and t.capacity >= p.size) =>
-  // {
-
-  // } else
-  // {
-
-  // }
-
-  // all c: Customer {
-  //   c in p.people => {
-  //     c.status = Waiting => c.status' = Seated
-  //   } else {
-  //     c.status = Waiting => c.status' = Waiting
-  //   }
-  // }
-
-  // --> table now has customers at it 
-  // t.customersAtTable' = p.people
-  // p.spot' = t.tableNumber
-  // customerTransistion[p]
-}
-
-pred order_group {
-
-}
-
-pred eating_group {
-
-}
-
-pred all_parties_sat {
-  all p: Party | p.spot != None
-}
-  --> find a table in available tables that has capacity > party size
-  // some t: openTables {
-  //   //if 
-  //   {p.size <= t.capacity} => 
-  //   //then
-  //   {
-
-  //     --> table now has customers at it 
-  //     t.customersAtTable' = p.people
-  //     p.spot' = t.tableNumber
-
-  //     --> party is now seated
-  //     customerTransistion[p]
-
-  //     --> table is now Full
-  //     Full.tables' = Full.tables + t
-
-  //     --> 
-  //     all c: p.people {
-  //       c.myTableNumber = t.tableNumber
-  //     }
-  //   }
-  //   else 
-  //   {
-  //     t.customersAtTable' = t.customersAtTable
-  //     p.spot' = p.spot
-  //     Full.tables' = Full.tables
-  //   }
-  // }
-  --> state transition elements:
-  --> table is now Full
-  --> party is now seated
-  --> table now has customers set at it 
-
-
-// seats customers at table -- TODO: 
-// pred occupy_table[p: Party] {
-//   find_table[p, Available.tables]
-//   all t: Table, p: Party | { 
-//       #{c: Customer | c in p.people} <= t.capacity
-//     }
-// }
-// seats customers at table
-// pred occupy_table[p: Party] {
-//   find_table[p, Available.tables]
-//   all t: Table, p: Party | { 
-//       #{c: Customer | c in p.people} <= t.capacity
-//     }
-// }
-
-// pred occupy_table[t: Table] {
-//   --> occupy with two customer 
-//   {t in Available.tables => {
-//     --> customer has to go from waiting to seated 
-//     --> table has to go form available to taken 
-//     some a: Customer | {
-//       a.status = Waiting
-  
-//       t.customersAtTable' = t.customersAtTable + (a)
-//       a.status' = Seated
-  
-//       Available.tables' = Available.tables - t
-//       Full.tables' = Full.tables + t
-//     }}}  
-// }
-
-//unseats customers at table 
 pred seat[p: Party] {
-  --GAURD
-  --Party does not have a spot
+  -- GAURD
+  --> Party does not have a spot
   p.spot = none 
-  -- ACTION
+
+  -- ACTION[s]
+  --> trantision customers state in party, p, to seated 
+  --> assings some table, t, to the parties spot field 
+  --> Marks table as Full
   all c: Customer | { 
     {c in p.people => {
        c.status = Waiting => c.status' = Seated 
@@ -266,65 +178,98 @@ pred seat[p: Party] {
     } } 
   }
 
-   some t: Table | {
-     (t in Available.tables and t.capacity >= p.size) => 
-     {
-       p.spot' = t
-       t.customersAtTable' = p.people 
-       Available.tables' = Available.tables - t
-       Full.tables' = Full.tables + t
-     } 
-   }
+  some t: Table | {
+    (t in Available.tables and t.capacity >= p.size) => 
+    {
+      p.spot' = t
+      Available.tables' = Available.tables - t
+      Full.tables' = Full.tables + t
+    } 
+  }
 }
+
+------------------- order ------------------
+--> takes party, p's, order and sends it into kitchen queue
 
 pred order[p: Party] {
-  // guard (people are at table ? and status of people is seated not waiting ??
-  //no orders at the table already and seated 
-  //lauren has the gaurd 
- all c: Customer | {
-    c in p.people => {
-       c.status = Seated => c.status' = Ordered
-    } else {
-      c.status = Seated => c.status' = Seated
-    }
-  }
+  -- GAURD
+  --> no orders | table is full
+  no p.spot.orders and p.spot in Full.tables
 
- //  p.spot.orders = DISHES (fill in the dishes here )
+  -- CONSTANTS
+  --> table spots should not change
+  --> available and full tables 
+  p.spot' = p.spot
+  Available.tables' = Available.tables
+  Full.tables' = Full.tables
+
+  -- ACTION
+  --> transition customers in table to orderd 
+  --> collect customers orders and sends to kitchen
+  all c: Customer | {
+      c in p.people => {
+        c.status = Seated => c.status' = Ordered
+      } else {
+        c.status' = c.status
+      }
+    }
+
+  //TODO: collect customers orders and sends to kitchen
 }
 
-pred check_out[p: Party] {
-   all c: Customer | {
+------------------- eating ------------------
+--> ??
+
+pred eating[p: Party] {
+  -- GAURD
+  -- orders are through kitchen queue 
+  -- TODO: figure out w/Jacobs code      
+
+  -- CONSTANTS
+  --> table spots should not change
+  p.spot' = p.spot
+  --> available and full tables 
+  Available.tables' = Available.tables
+  Full.tables' = Full.tables
+
+  -- ACTION
+  all c: Customer | {
     c in p.people => {
-       c.status = Ordered => c.status' = Ready4Check
+        c.status = Ordered => c.status' = Ready4Check
     } else 
-      c.status = Ordered => c.status' = Ordered
-    }
+      c.status = c.status'
+  }
 }
+
+------------------- leave ------------------
+--> represents customers leaving the resturant, resets all fields 
 
 pred leave[p: Party] {
-   all c: Customer | {
+  -- GARD 
+  -- TODO: custoemrs done eating ??? do we need one idk 
+
+  --> ACTION
+  --> reset customer status to waiting
+  --> restet party spot to none 
+  --> mark table as Available 
+
+  all c: Customer | {
     c in p.people => {
       c.status = Ready4Check => c.status' = Waiting 
     } else {
       c.status = Ready4Check => c.status' = Ready4Check 
     }
   }
+
+  p.spot' = none 
+  Available.tables' = Available.tables + p.spot
+  Full.tables' = Full.tables - p.spot
 }
 
-// every customer transitions 
-// pred customerTransistion { //WORK ONLY W/SEATED/ORDERED 
-//   //?? change to all customer in the party transition 
-//   all c: Customer | {
-//       c.status = Waiting => c.status' = Seated
-//       c.status = Seated => c.status' = Ordered
-//       c.status = Ordered => c.status' = Ready4Check
-//       c.status = Ready4Check => c.status' = Waiting
-//     }
-// }
+------------------- customerTransistion ------------------
+--> Transitions customers through CustomerStatus with their assigned party - does not control any other fields 
 
-//customers transition just with their party 
-pred customerTransistion[p: Party] { //WORK ONLY W/SEATED/ORDERED 
-  //?? change to all customer in the party transition 
+pred customerTransistion[p: Party] {  
   all c: Customer | {
     c in p.people => {
        c.status = Waiting => c.status' = Seated 
@@ -340,7 +285,7 @@ pred customerTransistion[p: Party] { //WORK ONLY W/SEATED/ORDERED
   }
 }
 
-
+///?? KEEP IN HERE OR IN QUEUE 
 // minimum that each table orders just one order of either a burger, salas, or chicktenders
 pred dishOrders {
   all t: Table | {
@@ -354,22 +299,20 @@ pred dishOrders {
   }
 }
 
-//pred ordering {
-  //TODO: JACOB
-//}
-
+--> cycles customers through resturant
 pred run_states[p: Party] {
-  some c: Customer | { //all is unsat here 
+  some c: Customer | {
     c in p.people 
     c.status = Waiting => seat[p]
     c.status = Seated => order[p]
-    c.status = Ordered => check_out[p]
+    c.status = Ordered => eating[p]
     c.status = Ready4Check => leave[p]
   }
 } 
 
 --------------- RUN STATEMENTS --------------
-
+ 
+--> Beginning of the day represents the resturant in its opening state
 pred beginning_of_day {
   always valid_state
   table_init
@@ -378,8 +321,9 @@ pred beginning_of_day {
   party_init
 }
 
-run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
+// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
 
+--> customers_transition_with_party shows customers transitioning through the CustomerStatus states with their parties - nothing else is monitored here 
 pred customers_transition_with_party {
   beginning_of_day
    always {
@@ -391,11 +335,11 @@ pred customers_transition_with_party {
 
 // run {customers_transition_with_party} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
-pred seat_customers {
+--> customer_lifcycle takes one party through a resturant lifecycle 
+pred customer_lifcycle {
   beginning_of_day
-  some p: Party | {run_states[p]}
+  some p: Party | {always run_states[p]}
 }
 
-//run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
-// 20 max -- covid era 
