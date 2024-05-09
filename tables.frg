@@ -12,7 +12,6 @@ option problem_type temporal
 abstract sig Person {}
 
 sig Customer extends Person {
-  // myTableNumber: lone Table, 
   var status: one CustomerStatus
 }
 
@@ -32,10 +31,9 @@ sig Server extends Person {
 ---------------- Table ----------------
 
 sig Table {
-  customersAtTable: set Customer,
+  customersAtTable: set Customer, //take this out 
   tableNumber: one Int,
   capacity: one Int,
-  // server: one Server,
   orders: set Dish
   // price: lone Int
 }
@@ -286,7 +284,7 @@ pred customerTransistion[p: Party] {
 }
 
 ///?? KEEP IN HERE OR IN QUEUE 
-// minimum that each table orders just one order of either a burger, salas, or chicktenders
+// minimum that each table orders just one order of either a burger, salads, or chicktenders
 pred dishOrders {
   all t: Table | {
     all food: Dish | {
@@ -309,6 +307,12 @@ pred run_states[p: Party] {
     c.status = Ready4Check => leave[p]
   }
 } 
+------------------- CHECKS ------------------
+pred all_parties_seated{
+  all p: Party {
+    p.spot != none
+  }
+}
 
 --------------- RUN STATEMENTS --------------
  
@@ -326,7 +330,7 @@ pred beginning_of_day {
 --> customers_transition_with_party shows customers transitioning through the CustomerStatus states with their parties - nothing else is monitored here 
 pred customers_transition_with_party {
   beginning_of_day
-   always {
+  always {
     some p: Party {
       customerTransistion[p]
     }
@@ -341,5 +345,14 @@ pred customer_lifcycle {
   some p: Party | {always run_states[p]}
 }
 
-run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+// run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+
+pred seat_first{
+  beginning_of_day
+  {some p: Party {
+    seat[p]
+  }} until {all_parties_seated}
+}
+
+run {seat_first} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
