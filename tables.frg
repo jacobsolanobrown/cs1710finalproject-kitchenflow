@@ -1,4 +1,7 @@
 #lang forge
+
+open "normal_kitchen_queue.frg"
+
 option problem_type temporal 
 
 //TODO: take out customersAtTable field
@@ -46,12 +49,12 @@ one sig Available, Full extends TableStatus {}
 ---------------- Dish ----------------
 ///?? KEEP IN HERE OR IN QUEUE 
 
-abstract sig Dish {
-   price: one Int
-}
-sig Burger extends Dish {}
-sig Salad extends Dish {}
-sig ChickTenders extends Dish {}
+// abstract sig Dish {
+//    price: one Int
+// }
+// sig Burger extends Dish {}
+// sig Salad extends Dish {}
+// sig ChickTenders extends Dish {}
 
 /*
 --------------- VALID STATE --------------
@@ -212,8 +215,35 @@ pred order[p: Party] {
       }
     }
 
+  orderTicket[p]
+
   //TODO: collect customers orders and sends to kitchen
 }
+
+pred orderTicket[p: Party] {
+  some order: Ticket | {
+    // #(order1 + order2) = 2
+    // State 0 - nothing in kitchen
+    init[Kitchen]
+    p.spot.orders = none
+
+    // State 1 - 1st order in!
+    Kitchen.placedOrder' = order // just the tail of queue - 1st order in!
+    next' = none->none // no next node yet since only one node in queue
+    p.spot.orders' = p.spot.orders
+
+    // State 3 - 1st order out!
+    // q.placedOrder'' = none
+    // next''' = none->none
+    // p.spot.orders'' = p.spot.orders'' + order.foodOrder
+
+    // make sure that it follows our enqueue and dequeue model 
+    enqueue[Kitchen, order]
+    // next_state dequeue[q]
+  }
+}
+
+
 
 ------------------- eating ------------------
 --> ??
@@ -236,6 +266,22 @@ pred eating[p: Party] {
         c.status = Ordered => c.status' = Ready4Check
     } else 
       c.status = c.status'
+  }
+  serveTicket[p]
+}
+
+pred serveTicket[p: Party] {
+  some order: Ticket | {
+
+    // State 3 - 1st order out!
+
+    Kitchen.placedOrder = none
+    next = none->none
+    p.spot.orders = p.spot.orders + order.foodOrder
+
+    // make sure that it follows our enqueue and dequeue model 
+    dequeue[Kitchen]
+    // next_state dequeue[q]
   }
 }
 
@@ -342,6 +388,7 @@ pred customers_transition_with_party {
 --> customer_lifcycle takes one party through a resturant lifecycle 
 pred customer_lifcycle {
   beginning_of_day
+  wellformed
   some p: Party | {always run_states[p]}
 }
 
@@ -354,5 +401,5 @@ pred seat_first{
   }} until {all_parties_seated}
 }
 
-run {seat_first} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+run {customer_lifcycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 

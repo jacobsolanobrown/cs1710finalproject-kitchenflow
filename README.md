@@ -15,7 +15,7 @@ The Dining Area:
 - Upon a parties arrival in the restaurant, they are assigned a Table. In this model, tables have a capacity of either 2 or 4. Each table also has a unique table number and a set of customer orders. These are all fields of the Table sig. Additionally, each table can either be Available or Full. Each table must be in one of these status lists. 
 
 The Kitchen: 
-- TODO: fill in later
+- TODO: fill in later me!
 
 ### Model Goals & Project Scope 
 #### Foundation Goals: 

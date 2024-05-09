@@ -5,9 +5,12 @@ option problem_type temporal
 //option min_tracelength 5
 
 --------------- Table & Dishes -------------
-one sig Table{
-    var servedDishes: set Dish
-}
+// one sig Table{
+//     var servedDishes: set Dish
+//     // TODO: set 
+
+//     // 
+// }
 
 abstract sig Dish {}
 // menu items 
@@ -17,6 +20,7 @@ one sig Chicken, Burger, Tofu extends Dish {}
 sig Ticket {
     var next: lone Ticket,
     foodOrder: one Dish
+
 }
 
 one sig Kitchen { // Queue Data Structure
@@ -107,6 +111,7 @@ pred init[q: Kitchen] {
 //TODO: make a transitiion between dequeuing and serving orders 
 // model without needing to specify/control the next pointer for each state 
 pred kitchenSetup[q: Kitchen] {
+
     some order: Ticket | {
         enqueue[q, order]
     }
@@ -119,6 +124,7 @@ pred kitchenFourOrders{
             // State 0 - empty kitchen
             init[q]
 
+            //setup[o]... q.placeordr'= o
             // State 1 - 1st order in!
             q.placedOrder' = order1 // just the tail of queue - 1st order in!
             next' = none->none // no next node yet since only one node in queue
@@ -145,38 +151,38 @@ pred kitchenFourOrders{
 
 ------------ Enqueue and Dequeue Trace ------------
 pred serveOrder {
-         some order1, order2: Ticket, q: Kitchen, t: Table | {
-            #(order1 + order2) = 2
+         some order1, order2: Ticket, t: Table | {
+            // #(order1 + order2) = 2
             // State 0 - nothing in kitchen
-            init[q]
+            init[Kitchen]
             Table.servedDishes = none
 
             // State 1 - 1st order in!
-            q.placedOrder' = order1 // just the tail of queue - 1st order in!
+            Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
             next' = none->none // no next node yet since only one node in queue
             Table.servedDishes' = Table.servedDishes
 
 
             // State 2 - 2nd order in!
-            q.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
+            Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
             next'' = order2->order1 // previous tail becomes head/next 
             Table.servedDishes'' = Table.servedDishes'
 
 
             // State 3 - 1st order out!
-            q.placedOrder''' = order2
+            Kitchen.placedOrder''' = order2
             next''' = none->none
             Table.servedDishes''' = Table.servedDishes'' + order1.foodOrder
 
             // State 4 - 2nd order out!
-            init[q]
+            init[Kitchen]
             Table.servedDishes'''' = Table.servedDishes''' + order2.foodOrder
 
             // make sure that it follows our enqueue and dequeue model 
-            enqueue[q, order1]
-            next_state enqueue[q, order2]
-            next_state next_state dequeue[q]
-            next_state next_state next_state dequeue[q]
+            enqueue[Kitchen, order1]
+            next_state enqueue[Kitchen, order2]
+            next_state next_state dequeue[Kitchen]
+            next_state next_state next_state dequeue[Kitchen]
         }
 }
 
@@ -187,17 +193,14 @@ pred serveOrder {
 //     kitchenFourOrders
 // } for 4 Ticket, 1 Kitchen
 
-<<<<<<< Updated upstream
 -- SHOWS ENQUEUE + DEQUEUE
-=======
 -- enqueing + dequeuing/serving orders example 
-run {
-    wellformed
-    serveOrder
-} for 2 Ticket, 1 Kitchen
+// run {
+//     wellformed
+//     serveOrder
+// } for 2 Ticket, 1 Kitchen
 
 -- unsat when always wellformed - cant constrain the next pointer 
->>>>>>> Stashed changes
 // run {
 //     wellformed
 //     serveOrder
