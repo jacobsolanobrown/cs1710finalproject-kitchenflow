@@ -33,22 +33,20 @@ Our original reach goals were to model how different sets of kitchen staff effec
 
 TODO: ?? DO WE NEED TO DISCUSS WHY THESE HAVE CHANGED ??
 
-### Model Visualization: 
+### Model Visualization | Running our Model: 
 
 -- TODO: how to interpret the visualizer: not sure we need anything here?? not sure we need this 
 
 -- TODO: explain different run statements and what components of model they show --> they are pretty well commented so we might not need to write much
 
-### Model Limits & Stakeholders & Extra
-
-#### Limits to every model exist, here are the limits to our restaurant model:
+### Limits to every model exist, here are the limits to our restaurant model:
 TODO: fill in 
 - talk about scope and limits to model 
 - defining table sizes 
 - kitchen queue limits 
 - limits about parties moving simultaneously through the restaurant 
 
-#### Stakeholders 
+### Stakeholders 
 
 Several stakeholders exist for this model. 
 
@@ -62,7 +60,7 @@ This tool would directly impact the <b> kitchen staff </b>, improving their work
 
 Lastly this tool could improve <b> customers </b> experience at the restaurant!
 
-#### Collaborators
+### Collaborators
 - Our mentor @TA Ezra! 
 - Tim Nelson
 
