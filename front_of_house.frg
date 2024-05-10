@@ -91,7 +91,7 @@ The following preds work together to Initialize Resturant at the beginning of th
 -- CUSTOMER INIT 
 -- PARTY INIT 
 -- SERVER INIT
--- TODO: KITCHEN INIT
+-- KITCHEN INIT
 */
 
 --------------- init tables --------------
@@ -194,7 +194,7 @@ pred seat[p: Party] {
 --> takes party, p's, order and sends it into kitchen queue
 
 pred order[p: Party] {
-  -- GAURD
+  -- GUARD
   --> no orders | table is full
   no p.spot.orders and p.spot in Full.tables
 
@@ -207,75 +207,80 @@ pred order[p: Party] {
 
   -- ACTION
   --> transition customers in table to orderd 
-  --> collect customers orders and sends to kitchen
-  all c: Customer | {
-      c in p.people => {
-        c.status = Seated => c.status' = Ordered
-      } else {
-        c.status' = c.status
-      }
-    }
-
+  --> collect customers/entrire table's orders and sends to kitchen
   orderTicket[p]
 
-  //TODO: collect customers orders and sends to kitchen
+  all c: Customer | {
+    c in p.people => {
+      c.status = Seated => c.status' = Ordered
+    } else {
+      c.status' = c.status
+    }
+  }
 }
 
 pred orderTicket[p: Party] {
-  some order: Ticket | {
-    // State 0 
-    init[Kitchen]
+  -- there exists the party's entire order/ticket 
+  some partyOrder: Ticket | {
+    -- GUARD 
+    --> ensure that there is nothing in the Kitchen yet 
+    --> ensure that the table doesn't have any food yet 
+    initKitchen[Kitchen]
     p.spot.orders = none
 
-    // State 1 - 1st order in!
-    Kitchen.placedOrder' = order // just the tail of queue - 1st order in!
-    next' = none->none // no next node yet since only one node in queue
-   // p.spot.orders' = p.spot.orders
+    -- ACTION
+    --> place the party's order into the queue 
+    --> set the next order to the current party's order (none for this instance)
+    --> next state doesn't have any food yet considering they've only ordered 
+    Kitchen.placedOrder' = partyOrder
+    next' = none->none 
+    p.spot.orders' = p.spot.orders
 
-    // make sure that it follows our enqueue and dequeue model 
-    enqueue[Kitchen, order]
+    --> ensure it follows our enqueue predicate
+    enqueue[Kitchen, partyOrder]
   }
 }
 
 ------------------- eating ------------------
---> ??
+--> represents customers recieving their food, eating, and getting ready to leave
 
 pred eating[p: Party] {
-  -- GAURD
-  -- orders are through kitchen queue 
-  -- TODO: figure out w/Jacobs code      
+  -- GUARD
+  --> make sure that the our kitchen has our order (single order)
+  some t: Ticket | {
+    Kitchen.placedOrder = t
+  }
 
   -- CONSTANTS
   --> table spots should not change
   p.spot' = p.spot
+
   --> available and full tables 
   Available.tables' = Available.tables
   Full.tables' = Full.tables
 
   -- ACTION
+  --> serve the table their order and clear their order from the Kitchen
+  serveTicket[p]
+  --> ensure customers are ready for their checks and have eaten 
   all c: Customer | {
     c in p.people => {
         c.status = Ordered => c.status' = Ready4Check
     } else 
       c.status = c.status'
   }
-  serveTicket[p]
 }
 
 pred serveTicket[p: Party] {
-  some order: Ticket | {
-
-    // State 3 - 1st order out!
-    // TODO: initialize kitchen stuff to none 
-
+    -- ACTION
+    --> add the tickets orders to their corresponding party's (only one party for now)
+    --> clear the kitchen of that specific order 
+    p.spot.orders' = p.spot.orders + Kitchen.placedOrder.foodOrder
     Kitchen.placedOrder' = none
     next = none->none
-    p.spot.orders' = p.spot.orders + order.foodOrder
 
-    // make sure that it follows our enqueue and dequeue model 
-    // dequeue[Kitchen]
-    // next_state dequeue[q]
-  }
+    // ensure dequeue was enforced 
+    dequeue[Kitchen]
 }
 
 ------------------- leave ------------------
@@ -366,6 +371,7 @@ pred customers_transition_with_party {
 
 --> customer_lifcycle takes one party through a resturant lifecycle 
 pred customer_lifcycle {
+  initKitchen[Kitchen] -- ensure empty kitchen in beginning 
   beginning_of_day
   wellformed
   some p: Party | {always run_states[p]}

@@ -2,13 +2,13 @@
 
 option problem_type temporal 
 
-//option min_tracelength 5
-
+---------------- Menu ----------------
 abstract sig Dish {}
-// menu items 
+-- menu options 
 one sig Chicken, Burger, Tofu extends Dish {}
 
 // TODO: sets of ints where each int represents a menu option 
+
 ---------------- Kitchen ----------------
 sig Ticket {
     var next: lone Ticket,
@@ -82,33 +82,15 @@ pred wellformed {
             no next.order
         }
     }
-
-    // some order1, order2: Ticket | {
-    //     all foodItems: Dish | {
-    //         order1.foodOrder != order2.foodOrder
-    //     }
-    // }
-
 }
 
 ------------ Initial State ------------
 // the initial state of the kitchen is empty with no orders yet 
-pred init[q: Kitchen] {
+pred initKitchen[q: Kitchen] {
     q.placedOrder = none // no queue 
     next = none->none  // there is no next yet 
 }
 
-//TODO: how to constrain the next pointer enough without needing to properly specify d2->d1?
-//TODO: make a transitiion betwwen enqueuing 
-//TODO: make a transitiion between dequeuing and serving orders 
-// model without needing to specify/control the next pointer for each state 
-pred kitchenSetup[q: Kitchen] {
-
-    some order: Ticket | {
-        enqueue[q, order]
-    }
-}
- 
 ------------ Only Enqueuing Trace ------------
 pred kitchenFourOrders{
      some order1, order2, order3, order4: Ticket, q: Kitchen | {
@@ -186,22 +168,7 @@ pred serveOrder {
 // } for 4 Ticket, 1 Kitchen
 
 -- SHOWS ENQUEUE + DEQUEUE
--- enqueing + dequeuing/serving orders example 
 // run {
 //     wellformed
 //     serveOrder
 // } for 2 Ticket, 1 Kitchen
-
--- unsat when always wellformed - cant constrain the next pointer 
-// run {
-//     wellformed
-//     serveOrder
-// } for 2 Ticket, 1 Kitchen
-
--- UNSAT when always wellformed - cant constrain the next pointer 
-// run {
-//     always wellformed
-//     init[Kitchen]
-//     Table.servedDishes = none
-//     kitchenSetup[Kitchen]  
-// }  for 3 Ticket, 1 Kitchen
