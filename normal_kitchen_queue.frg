@@ -8,6 +8,7 @@ abstract sig Dish {}
 // menu items 
 one sig Chicken, Burger, Tofu extends Dish {}
 
+// TODO: sets of ints where each int represents a menu option 
 ---------------- Kitchen ----------------
 sig Ticket {
     var next: lone Ticket,

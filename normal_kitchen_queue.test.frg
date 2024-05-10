@@ -147,31 +147,6 @@ test suite for dequeue {
     }
 }
 
-// for wellformed assertion 
-pred validWellformed {
-    all order: Ticket | {
-        // the same order cannot be linked to itself - cannot be transitive 
-        order not in order.^next
-    }
-}
-
-// for wellformed assertion 
-pred nonvalidWellformed {
-
-    some k: Kitchen | {
-        not init[k] // not at the empty state (stuff in queue)
-        all order: Ticket | {
-            // the same order cannot be linked to itself - but for a bad wellformed 
-            // it can 
-            order in order.^next
-        }
-    }
-}
-
-// for wellformed assertion 
-pred notNonvalidWellformed {
-    not nonvalidWellformed
-}
 
 test suite for wellformed {
     test expect {
@@ -217,42 +192,33 @@ test suite for wellformed {
         }  is unsat  
     }
 
+// for wellformed assertion 
+pred validWellformed {
+    all order: Ticket | {
+        // the same order cannot be linked to itself - cannot be transitive 
+        order not in order.^next
+    }
+}
+
+// for wellformed assertion 
+pred nonvalidWellformed {
+
+    some k: Kitchen | {
+        not init[k] // not at the empty state (stuff in queue)
+        all order: Ticket | {
+            // the same order cannot be linked to itself - but for a bad wellformed 
+            // it can 
+            order in order.^next
+        }
+    }
+}
+
+// for wellformed assertion 
+pred notNonvalidWellformed {
+    not nonvalidWellformed
+}
+
     // assert common logical statements about wellformed
     assert validWellformed is necessary for wellformed
     assert notNonvalidWellformed is necessary for wellformed
-
-
-    ---- EXAMPLES ---- NOT SUPPORTED IN TEMPORAL SO THEY ARE HERE FOR FUN AND BETTER UNDERSTANDING...
-    // // if there is only one ticket in the queue - it should be wellformed 
-    // example oneTicket is wellformed for {
-    //     Kitchen = `Kitchen0
-    //     Ticket = `T0 + `T1 + `T2 + `T3
-    //     placedOrder = `Kitchen0->`T3
-    // }
-    
-    // // if there is three tickets in the queue - it should be wellformed 
-    // example threeTickets is wellformed for {
-    //     Kitchen = `Kitchen0
-    //     Ticket = `T0 + `T1 + `T2 
-    //     placedOrder = `Kitchen0->`T2
-    //     next = `T2->`T1 + `T1->`T0
-    // }
-
-    // // the kitchen queue should be a straight line such that the after ticket 3 
-    // // should be ticket ticekt 2 and then ticket 3 then nothing - not back to ticket 2 or 1 
-    // // ticket 1 the next ticket is ticket 2 and not ticket 3 
-    // example badKitchenLine is not wellformed for {
-    //     Kitchen = `Kitchen0
-    //     Ticket = `T0 + `T1 + `T2 
-    //     placedOrder = `Kitchen0->`T2
-    //     next = `T2->`T1 + `T1->`T0 + `T0->`T2
-    // }
-
-    // // the kitchen should not have orders that are not placed yet into their 'system' (queue)
-    // example nonPlacedOrders is not wellformed for {
-    //     Kitchen = `Kitchen0
-    //     Ticket = `T0 + `T1 + `T2 + `T3
-    //     placedOrder = `Kitchen0->`T3
-    //     next = `T2->`T1 // not connected to T3 - in queue
-    // }
 }

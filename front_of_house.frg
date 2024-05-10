@@ -223,8 +223,7 @@ pred order[p: Party] {
 
 pred orderTicket[p: Party] {
   some order: Ticket | {
-    // #(order1 + order2) = 2
-    // State 0 - nothing in kitchen
+    // State 0 
     init[Kitchen]
     p.spot.orders = none
 
@@ -233,14 +232,8 @@ pred orderTicket[p: Party] {
     next' = none->none // no next node yet since only one node in queue
    // p.spot.orders' = p.spot.orders
 
-    // State 3 - 1st order out!
-    // q.placedOrder'' = none
-    // next''' = none->none
-    // p.spot.orders'' = p.spot.orders'' + order.foodOrder
-
     // make sure that it follows our enqueue and dequeue model 
     enqueue[Kitchen, order]
-    // next_state dequeue[q]
   }
 }
 
