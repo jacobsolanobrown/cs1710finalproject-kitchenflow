@@ -6,8 +6,9 @@ option problem_type temporal
 
 //TODO: take out customersAtTable field
 
-//default trace length is 5 -- could enforce a new max thats a bigger number 
-//use var to make state variable
+// EXTRA FUNCTIONALITY:
+--> add price to dish 
+--> have a set --> cardinality is number of custiomers in party, each set element represents a menu option, each num coresponds to menu item 
 
 ------------- DEFINITIONS -------------
 -------- Employees & Customers --------
@@ -37,7 +38,7 @@ sig Table {
   customersAtTable: set Customer, //take this out 
   tableNumber: one Int,
   capacity: one Int,
-  orders: set Dish
+  var orders: set Dish
   // price: lone Int
 }
 
@@ -243,8 +244,6 @@ pred orderTicket[p: Party] {
   }
 }
 
-
-
 ------------------- eating ------------------
 --> ??
 
@@ -274,13 +273,14 @@ pred serveTicket[p: Party] {
   some order: Ticket | {
 
     // State 3 - 1st order out!
+    // TODO: initialize kitchen stuff to none 
 
-    Kitchen.placedOrder = none
+    Kitchen.placedOrder' = none
     next = none->none
-    p.spot.orders = p.spot.orders + order.foodOrder
+    p.spot.orders' = p.spot.orders + order.foodOrder
 
     // make sure that it follows our enqueue and dequeue model 
-    dequeue[Kitchen]
+    // dequeue[Kitchen]
     // next_state dequeue[q]
   }
 }
@@ -325,20 +325,6 @@ pred customerTransistion[p: Party] {
       c.status = Seated => c.status' = Seated
       c.status = Ordered => c.status' = Ordered
       c.status = Ready4Check => c.status' = Ready4Check 
-    }
-  }
-}
-
-///?? KEEP IN HERE OR IN QUEUE 
-// minimum that each table orders just one order of either a burger, salads, or chicktenders
-pred dishOrders {
-  all t: Table | {
-    all food: Dish | {
-      food in t.orders implies {
-        food = Burger or 
-        food = Salad or 
-        food = ChickTenders
-      }
     }
   }
 }
