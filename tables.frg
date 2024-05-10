@@ -37,7 +37,7 @@ sig Table {
   customersAtTable: set Customer, //take this out 
   tableNumber: one Int,
   capacity: one Int,
-  orders: set Dish
+  var orders: set Dish
   // price: lone Int
 }
 
@@ -243,8 +243,6 @@ pred orderTicket[p: Party] {
   }
 }
 
-
-
 ------------------- eating ------------------
 --> ??
 
@@ -275,12 +273,12 @@ pred serveTicket[p: Party] {
 
     // State 3 - 1st order out!
 
-    Kitchen.placedOrder = none
+    Kitchen.placedOrder' = none
     next = none->none
-    p.spot.orders = p.spot.orders + order.foodOrder
+    p.spot.orders' = p.spot.orders + order.foodOrder
 
     // make sure that it follows our enqueue and dequeue model 
-    dequeue[Kitchen]
+    // dequeue[Kitchen]
     // next_state dequeue[q]
   }
 }

@@ -20,7 +20,6 @@ one sig Chicken, Burger, Tofu extends Dish {}
 sig Ticket {
     var next: lone Ticket,
     foodOrder: one Dish
-
 }
 
 one sig Kitchen { // Queue Data Structure
