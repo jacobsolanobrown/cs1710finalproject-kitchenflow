@@ -6,8 +6,9 @@ option problem_type temporal
 
 //TODO: take out customersAtTable field
 
-//default trace length is 5 -- could enforce a new max thats a bigger number 
-//use var to make state variable
+// EXTRA FUNCTIONALITY:
+--> add price to dish 
+--> have a set --> cardinality is number of custiomers in party, each set element represents a menu option, each num coresponds to menu item 
 
 ------------- DEFINITIONS -------------
 -------- Employees & Customers --------
@@ -324,20 +325,6 @@ pred customerTransistion[p: Party] {
       c.status = Seated => c.status' = Seated
       c.status = Ordered => c.status' = Ordered
       c.status = Ready4Check => c.status' = Ready4Check 
-    }
-  }
-}
-
-///?? KEEP IN HERE OR IN QUEUE 
-// minimum that each table orders just one order of either a burger, salads, or chicktenders
-pred dishOrders {
-  all t: Table | {
-    all food: Dish | {
-      food in t.orders implies {
-        food = Burger or 
-        food = Salad or 
-        food = ChickTenders
-      }
     }
   }
 }

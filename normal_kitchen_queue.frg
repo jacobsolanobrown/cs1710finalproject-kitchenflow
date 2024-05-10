@@ -4,14 +4,6 @@ option problem_type temporal
 
 //option min_tracelength 5
 
---------------- Table & Dishes -------------
-// one sig Table{
-//     var servedDishes: set Dish
-//     // TODO: set 
-
-//     // 
-// }
-
 abstract sig Dish {}
 // menu items 
 one sig Chicken, Burger, Tofu extends Dish {}
