@@ -147,6 +147,30 @@ test suite for dequeue {
     }
 }
 
+// for wellformed assertion 
+pred validWellformed {
+    all order: Ticket | {
+        // the same order cannot be linked to itself - cannot be transitive 
+        order not in order.^next
+    }
+}
+
+// for wellformed assertion 
+pred nonvalidWellformed {
+    some k: Kitchen | {
+        not init[k] // not at the empty state (stuff in queue)
+        all order: Ticket | {
+            // the same order cannot be linked to itself - but for a bad wellformed 
+            // it can 
+            order in order.^next
+        }
+    }
+}
+
+// for wellformed assertion 
+pred notNonvalidWellformed {
+    not nonvalidWellformed
+}
 
 test suite for wellformed {
     test expect {
@@ -192,33 +216,9 @@ test suite for wellformed {
         }  is unsat  
     }
 
-// for wellformed assertion 
-pred validWellformed {
-    all order: Ticket | {
-        // the same order cannot be linked to itself - cannot be transitive 
-        order not in order.^next
-    }
-}
-
-// for wellformed assertion 
-pred nonvalidWellformed {
-
-    some k: Kitchen | {
-        not init[k] // not at the empty state (stuff in queue)
-        all order: Ticket | {
-            // the same order cannot be linked to itself - but for a bad wellformed 
-            // it can 
-            order in order.^next
-        }
-    }
-}
-
-// for wellformed assertion 
-pred notNonvalidWellformed {
-    not nonvalidWellformed
-}
-
     // assert common logical statements about wellformed
     assert validWellformed is necessary for wellformed
     assert notNonvalidWellformed is necessary for wellformed
 }
+
+// TODO: make assertions for enquue / dequeue
