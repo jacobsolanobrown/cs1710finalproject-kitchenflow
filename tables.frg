@@ -69,16 +69,16 @@ Ensures that each state is valid - no crazy instances
 pred valid_state {
   --> Tables are either full or occupied, cannot be both
   Table = Available.tables + Full.tables
-  no t : Table | t in Available.tables and t in Full.tables
+  no t : Table | {t in Available.tables and t in Full.tables}
 
  --> Tables numbers cannot be negative / need to be in a specific range (1-5)
  all t: Table | t.tableNumber > 0 and t.tableNumber < 6
+ all t: Table | {#{t}<6}
 
  --> Each table has a unique table #
   all disj t1, t2: Table | {
     //assign unique table number 
     //TODO: limit table number scope?
-    // previously, t1.tableNumber > 0 and t1.tableNumber < 6 implies 
     t1.tableNumber != t2.tableNumber // I think this is better 
   }
 } 
@@ -230,7 +230,7 @@ pred orderTicket[p: Party] {
     // State 1 - 1st order in!
     Kitchen.placedOrder' = order // just the tail of queue - 1st order in!
     next' = none->none // no next node yet since only one node in queue
-    p.spot.orders' = p.spot.orders
+   // p.spot.orders' = p.spot.orders
 
     // State 3 - 1st order out!
     // q.placedOrder'' = none
