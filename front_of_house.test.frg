@@ -3,15 +3,17 @@
 
 open "front_of_house.frg"
 open "normal_kitchen_queue.frg"
+open "normal_kitchen_queue.frg"
 
-pred invalidState { some t: Table | {
-    t in Available.tables and t in Full.tables }
-}
 -------- VALID_STATE TESTS --------
-pred wrapperInvalid {not invalidState}
-test suite for valid_state {
+pred invalidState0 { some t: Table |  t in Available.tables and t in Full.tables}
 
-  assert wrapperInvalid is necessary for valid_state
+pred invalidState1 {some t: Table | t.tableNumber <0 or t.tableNumber > 6}
+
+pred wrapperInvalidTable {not invalidState0 and not invalidState1}
+
+test suite for valid_state {
+  assert wrapperInvalidTable is necessary for valid_state
   -------- tests based on predicates properties --------
   -- no table exists that is in both Available and Full
   test expect {
@@ -92,7 +94,7 @@ test suite for valid_state {
           c.status = none 
         } 
     } is unsat 
-}
+  }
 }
 
 ---------- SERVER_INIT TESTS ----------
@@ -292,21 +294,71 @@ test suite for customer_init {
     } is sat  
   }  
 }
+//TODO
+test suite for kitchen_init {}
+//TODO
+test suite for seat{}
 
------------ KITCHEN_INIT TESTS -----------
+// TODO
+test suite for server_init {}
+----------- ORDER TESTS -----------
+test suite for order {
+  
+  test expect {
+    //checking that the party's table stays the same
+    validOrder0: {
+        one p: Party, t1: Table| {
+          p.spot.orders = none 
+          p.spot in Full.tables 
+          p.spot = t1
+          order[p] 
+          p.spot = t1
+      }
+    } is sat
 
-test suite for kitchen_init{ 
-  -- no orders are placed in init state
-test expect {
-  kitchen_one: {
-    kitchen_init
-    some k: Kitchen | {
-      Kitchen.placedOrder != none 
-    }
-  } is unsat 
+    // the party's table is not supposed to change when an order takes place
+    invalidOrder0: {
+          one p: Party {
+            some disj t1, t2: Table | {
+              p.spot.orders = none 
+              p.spot in Full.tables 
+              p.spot = t1
+              order[p] 
+              p.spot = t2
+            }
+        }
+    } is unsat
+    
+    // checking that a customer's state is updated after they order 
+    validOrder1: {
+    some p: Party, c: Customer | {
+      c in p.people
+      c.status = Seated 
+      order[p]
+      c.status' = Ordered
+    } 
+    } is sat
+
+    invalidOrder1: {
+      some p: Party, c: Customer | {
+        c in p.people
+        c.status = Seated 
+        order[p]
+        c.status' = Seated
+      } 
+    } is unsat
+
+    invalidOrder2: {
+      some p: Party, c: Customer | {
+        c not in p.people
+        c.status = Seated 
+        order[p]
+        c.status' = Ordered
+      } 
+    } is unsat
+  }
 }
 
-}
 
 ----------- ORDER_TICKET TESTS -----------
 
@@ -319,11 +371,46 @@ test suite for order_ticket {
         order_ticket[p]
       }
     } is unsat 
+  }  test expect {
+    validTicketOrder0: {
+      one p: Party, o: Ticket {
+        order_ticket[p] implies {
+        kitchen_init
+        no p.spot.orders
+        all c: Customer | {
+          c in p.people implies c.status != Seated
+        }
+        one k: Kitchen | {
+          k.placedOrder = o
+        }
+        }
+      }
+    } is sat
+
+    invalidTicketOrder1: {
+      some p: Party, o: Ticket, k: Kitchen | {
+        order_ticket[p] 
+        k.placedOrder = none and k.placedOrder' = none
+        p.spot.orders = o.foodOrder
+        p.spot.orders' != o.foodOrder
+      }
+    } is unsat 
   }
+
 }
 
+//TODO
+test suite for eating{}
+//TODO
+test suite for serve_ticket{}
+//TODO
+test suite for leave{}
+//TODO
+test suite for customerTransition{}
+//TODO
+test suite for run_states{}
 ----------- SERVE_TICKET TESTS -----------
-
+//TODO 
 test suite for serve_ticket{
   --??
 

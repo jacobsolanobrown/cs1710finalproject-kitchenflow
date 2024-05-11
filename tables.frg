@@ -6,9 +6,8 @@ option problem_type temporal
 
 //TODO: take out customersAtTable field
 
-// EXTRA FUNCTIONALITY:
---> add price to dish 
---> have a set --> cardinality is number of custiomers in party, each set element represents a menu option, each num coresponds to menu item 
+//default trace length is 5 -- could enforce a new max thats a bigger number 
+//use var to make state variable
 
 ------------- DEFINITIONS -------------
 -------- Employees & Customers --------
@@ -38,7 +37,7 @@ sig Table {
   customersAtTable: set Customer, //take this out 
   tableNumber: one Int,
   capacity: one Int,
-  var orders: set Dish
+  orders: set Dish
   // price: lone Int
 }
 
@@ -61,10 +60,10 @@ one sig Available, Full extends TableStatus {}
 --------------- VALID STATE --------------
 Ensures that each state is valid - no crazy instances
 --> Tables are either Available OR Full | can't be both
---> Customers are either Waiting or Seated or Ordered or Ready4Check | cant be none
+--> Customers are either Waiting or Seated or Ordered or Ready4Check | can't be in more than one 
 --> Table numbers must be positive/in a specific range [1-5]
 --> Each Table should have a unique table number
---> rn we only have 6 tables in our resturant!
+--> ?? need to state how many people are in the resturant 
 */
 
 pred valid_state {
@@ -72,30 +71,25 @@ pred valid_state {
   Table = Available.tables + Full.tables
   no t : Table | {t in Available.tables and t in Full.tables}
 
-  --> Customers are either Waiting or Seated or Ordered or Ready4Check
-  all c: Customer | c.status != none
-
  --> Tables numbers cannot be negative / need to be in a specific range (1-5)
  all t: Table | t.tableNumber > 0 and t.tableNumber < 6
- all t: Table | {#{t}<6}
 
  --> Each table has a unique table #
   all disj t1, t2: Table | {
     //assign unique table number 
-    //for future consideration: consider limiting table number scope in 
-    //more generalizable way 
+    //TODO: limit table number scope?
     t1.tableNumber != t2.tableNumber 
   }
 } 
 
 /*
 --------------- INIT STATES --------------
-The following predicates work together to Initialize Resturant at the beginning of the day | Opening State 
+The following preds work together to Initialize Resturant at the beginning of the day | Opening State 
 -- TABLE INIT
 -- CUSTOMER INIT 
 -- PARTY INIT 
 -- SERVER INIT
--- KITCHEN INIT
+-- TODO: KITCHEN INIT
 */
 
 --------------- init tables --------------
@@ -103,7 +97,6 @@ The following predicates work together to Initialize Resturant at the beginning 
 --> No customers at any table
 --> No orders at the table
 --> Setting capacity to specified range {2, 4}
---> Must be at least one table in the resturant 
 
 pred table_init {
   Table = Available.tables
@@ -117,8 +110,6 @@ pred table_init {
     t.capacity = 2 or t.capacity = 4
     #{c: Customer | c in t.customersAtTable} = 0 //duplicate?
   }
-
-  #{Table} >= 1 
 }
 
 --------------- init customers --------------
@@ -152,7 +143,6 @@ pred party_init {
 --------------- init servers --------------
 --> There are not more servers than tables in resturant
 --> Each table only has one server
---> Every table has a server 
 
 pred server_init {
   valid_state implies {
@@ -165,22 +155,7 @@ pred server_init {
     s1.myTables != s2.myTables
     no t: Table | t in s1.myTables and t in s2.myTables // this might be better 
   }
-
-  all s: Server | {
-    s.myTables != none
-  }
-
-  #{Server.myTables} = #{Table}
 }
-
---------------- init kitchen --------------
---> the kitchen is empty with no orders 
---> no ticket points to another ticket 
-pred kitchen_init {
-    Kitchen.placedOrder = none // no queue 
-    next = none->none  // there is no next yet 
-}
-
 
 ----------- CUSTOMER TRANSITIONS ----------
 ------------------- seat ------------------
@@ -217,7 +192,7 @@ pred seat[p: Party] {
 --> takes party, p's, order and sends it into kitchen queue
 
 pred order[p: Party] {
-  -- GUARD
+  -- GAURD
   --> no orders | table is full
   no p.spot.orders and p.spot in Full.tables
 
@@ -230,90 +205,93 @@ pred order[p: Party] {
 
   -- ACTION
   --> transition customers in table to orderd 
-  --> collect customers/entrire table's orders and sends to kitchen
-  order_ticket[p]
-
+  --> collect customers orders and sends to kitchen
   all c: Customer | {
-    c in p.people => {
-      c.status = Seated => c.status' = Ordered
-    } else {
-      c.status' = c.status
+      c in p.people => {
+        c.status = Seated => c.status' = Ordered
+      } else {
+        c.status' = c.status
+      }
     }
-  }
+
+  orderTicket[p]
+
+  //TODO: collect customers orders and sends to kitchen
 }
 
-
-pred order_ticket[p: Party] {
-  -- there exists the party's entire order/ticket 
-  some partyOrder: Ticket | {
-    -- GUARD 
-    --> ensure that there is nothing in the Kitchen yet 
-    --> ensure that the table doesn't have any food yet 
-    kitchen_init
+pred orderTicket[p: Party] {
+  some order: Ticket | {
+    // #(order1 + order2) = 2
+    // State 0 - nothing in kitchen
+    init[Kitchen]
     p.spot.orders = none
 
-    -- ACTION
-    --> place the party's order into the queue 
-    --> set the next order to the current party's order (none for this instance)
-    --> next state doesn't have any food yet considering they've only ordered 
-    Kitchen.placedOrder' = partyOrder
-    next' = none->none 
-    p.spot.orders' = p.spot.orders
+    // State 1 - 1st order in!
+    Kitchen.placedOrder' = order // just the tail of queue - 1st order in!
+    next' = none->none // no next node yet since only one node in queue
+   // p.spot.orders' = p.spot.orders
 
-    --> ensure it follows our enqueue predicate
-    enqueue[Kitchen, partyOrder]
+    // State 3 - 1st order out!
+    // q.placedOrder'' = none
+    // next''' = none->none
+    // p.spot.orders'' = p.spot.orders'' + order.foodOrder
+
+    // make sure that it follows our enqueue and dequeue model 
+    enqueue[Kitchen, order]
+    // next_state dequeue[q]
   }
 }
 
+
+
 ------------------- eating ------------------
---> represents customers recieving their food, eating, and getting ready to leave
+--> ??
 
 pred eating[p: Party] {
-  -- GUARD
-  --> make sure that the our kitchen has our order (single order)
-  some t: Ticket | {
-    Kitchen.placedOrder = t
-  }
+  -- GAURD
+  -- orders are through kitchen queue 
+  -- TODO: figure out w/Jacobs code      
 
   -- CONSTANTS
   --> table spots should not change
   p.spot' = p.spot
-
   --> available and full tables 
   Available.tables' = Available.tables
   Full.tables' = Full.tables
 
   -- ACTION
-  --> serve the table their order and clear their order from the Kitchen
-  serve_ticket[p]
-  --> ensure customers are ready for their checks and have eaten 
   all c: Customer | {
     c in p.people => {
         c.status = Ordered => c.status' = Ready4Check
     } else 
       c.status = c.status'
   }
+  serveTicket[p]
 }
 
---> Helper for eating
-pred serve_ticket[p: Party] {
-    -- ACTION
-    --> add the tickets orders to their corresponding party's (only one party for now)
-    --> clear the kitchen of that specific order 
-    p.spot.orders' = p.spot.orders + Kitchen.placedOrder.foodOrder
-    Kitchen.placedOrder' = none
-    next = none->none
+pred serveTicket[p: Party] {
+  some order: Ticket | {
 
-    // ensure dequeue was enforced 
+    // State 3 - 1st order out!
+
+    Kitchen.placedOrder = none
+    next = none->none
+    p.spot.orders = p.spot.orders + order.foodOrder
+
+    // make sure that it follows our enqueue and dequeue model 
     dequeue[Kitchen]
+    // next_state dequeue[q]
+  }
 }
 
 ------------------- leave ------------------
 --> represents customers leaving the resturant, resets all fields 
 
 pred leave[p: Party] {
-  -- GUARD 
+  -- GARD 
+  -- TODO: custoemrs done eating ??? do we need one idk 
   p.spot.orders not in Kitchen.placedOrder.^next
+  -- set dishes compared to set of lone ticket
   --> ACTION
   --> reset customer status to waiting
   --> restet party spot to none 
@@ -351,6 +329,20 @@ pred customerTransistion[p: Party] {
   }
 }
 
+///?? KEEP IN HERE OR IN QUEUE 
+// minimum that each table orders just one order of either a burger, salads, or chicktenders
+pred dishOrders {
+  all t: Table | {
+    all food: Dish | {
+      food in t.orders implies {
+        food = Burger or 
+        food = Salad or 
+        food = ChickTenders
+      }
+    }
+  }
+}
+
 --> cycles customers through resturant
 pred run_states[p: Party] {
   some c: Customer | {
@@ -361,8 +353,14 @@ pred run_states[p: Party] {
     c.status = Ready4Check => leave[p]
   }
 } 
+------------------- CHECKS ------------------
+pred all_parties_seated{
+  all p: Party {
+    p.spot != none
+  }
+}
 
---------------- RUN STATEMENTS for front_of_house.frg --------------
+--------------- RUN STATEMENTS --------------
  
 --> Beginning of the day represents the resturant in its opening state
 pred beginning_of_day {
@@ -371,7 +369,6 @@ pred beginning_of_day {
   server_init
   customer_init
   party_init
-  kitchen_init
 }
 
 // run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
@@ -388,15 +385,12 @@ pred customers_transition_with_party {
 
 // run {customers_transition_with_party} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
---> customer_lifecycle takes one party through a resturant lifecycle 
-pred customer_lifecycle {
+--> customer_lifcycle takes one party through a resturant lifecycle 
+pred customer_lifcycle {
   beginning_of_day
-  always wellformed
+  wellformed
   some p: Party | {always run_states[p]}
 }
-
-run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
 
 // run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
@@ -407,89 +401,5 @@ pred seat_first{
   }} until {all_parties_seated}
 }
 
-// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
---------------- RUN STATEMENTS for normal_kitchen_queue.frg --------------
-
--- Only Enqueuing Trace --
-pred four_tickets{
-     some order1, order2, order3, order4: Ticket | {
-            #(order1 + order2 + order3 + order4) = 4
-            // State 0 - empty kitchen
-            kitchen_init
-
-            //setup[o]... q.placeordr'= o
-            // State 1 - 1st order in!
-            Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
-            next' = none->none // no next node yet since only one node in queue
-
-            // State 2 - 2nd order in!
-            Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
-            next'' = order2->order1 // previous tail becomes head/next 
-
-            // State 3 - 3rd order in!
-            Kitchen.placedOrder''' = order3
-            next''' = order3->order2 + order2->order1
-
-            // State 4 - 4th order in!
-            Kitchen.placedOrder'''' = order4
-            next'''' = order4->order3 + order3->order2 + order2->order1
-
-            // make sure that it follows our enqueue model 
-            enqueue[Kitchen, order1]
-            next_state enqueue[Kitchen, order2]
-            next_state next_state enqueue[Kitchen, order3]
-            next_state next_state next_state enqueue[Kitchen, order4]
-        }
-}
-
--- Enqueue and Dequeue Trace --
-pred order_and_serve {
-         some order1, order2: Ticket, t: Table | {
-            // State 0 - nothing in kitchen
-            kitchen_init
-            t.orders = none
-
-            // State 1 - 1st order in!
-            Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
-            next' = none->none // no next node yet since only one node in queue
-            t.orders' = t.orders
-
-
-            // State 2 - 2nd order in!
-            Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
-            next'' = order2->order1 // previous tail becomes head/next 
-            t.orders'' = t.orders'
-
-
-            // State 3 - 1st order out!
-            Kitchen.placedOrder''' = order2
-            next''' = none->none
-            t.orders''' = t.orders'' + order1.foodOrder
-
-            // State 4 - 2nd order out!
-            initKitchen
-            t.orders'''' = t.orders''' + order2.foodOrder
-
-            // make sure that it follows our enqueue and dequeue model 
-            enqueue[Kitchen, order1]
-            next_state enqueue[Kitchen, order2]
-            next_state next_state dequeue[Kitchen]
-            next_state next_state next_state dequeue[Kitchen]
-        }
-}
-
---- Run Statements --
-
---> ONLY SHOWS ENQUEUING
-// run {
-//     wellformed
-//     four_tickets
-// } for 4 Ticket, 1 Kitchen
-
---> SHOWS ENQUEUE + DEQUEUE
-// run {
-//     wellformed
-//     order_and_serve
-// } for 2 Ticket, 1 Kitchen
+run {customer_lifcycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
