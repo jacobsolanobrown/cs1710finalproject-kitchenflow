@@ -7,8 +7,6 @@ abstract sig Dish {}
 -- menu options 
 one sig Chicken, Burger, Tofu extends Dish {}
 
-// TODO: sets of tts where each int represents a menu option 
-
 ---------------- Kitchen ----------------
 -- kitchen queue node that points to other nodes in queue -- 
 sig Ticket {
