@@ -1,5 +1,4 @@
 #lang forge
-//assert and is sat/unsat/ is theorem
 
 open "front_of_house.frg"
 open "normal_kitchen_queue.frg"
@@ -218,7 +217,6 @@ test suite for table_init {
 }
 
 ----------- PARTY_INIT TESTS ----------
--------- tests based on predicates properties --------
 
 test suite for party_init {
   -- no party has a size firld that dosen't equal the number of people in the party 
@@ -259,7 +257,6 @@ test suite for party_init {
     } is sat 
   }
 }
-
 
 ----------- CUSTOMER_INIT TESTS -----------
 
@@ -313,7 +310,7 @@ test expect {
 } is sat 
 }
 
-      -- no orders are placed in init state
+-- no orders are placed in init state
 test expect {
   kitchen_two: {
     kitchen_init
@@ -329,6 +326,13 @@ pred valid_kitchen_init {
   next = none->none
 }
 
+pred invalid_kitchen_init{
+  some t1, t2: Ticket | {
+    Kitchen.placedOrder = t1
+    next = t1->t2
+  }
+}
+
 pred not_invalid_kitchen_init {
   not invalid_kitchen_init
 }
@@ -337,8 +341,29 @@ assert valid_kitchen_init is necessary for kitchen_init
 assert not_invalid_kitchen_init is necessary for kitchen_init
 
 ----------- ORDER TESTS -----------
+
 test suite for order {
-  
+    -- testing guard: no orders can be @ the table
+  test expect {
+    order_onw: {
+      some p: Party, d: Dish | {
+        p.spot.orders = d
+        order[p]
+      }
+    } is unsat
+  } 
+
+  --testing guard: table must be full/assigned 
+  test expect {
+    order_two: {
+      some p: Party, d: Dish | {
+        beginning_of_day
+        p.spot != none
+        order[p]
+      }
+    } is unsat
+  } 
+
   test expect {
     //checking that the party's table stays the same
     validOrder0: {
@@ -425,15 +450,54 @@ test suite for order_ticket{
 
 }
 
-//TODO
-test suite for serve_ticket{}
-//TODO
-test suite for leave{}
 
 ----------- SERVE_TICKET TESTS -----------
-//TODO 
+
 test suite for serve_ticket{
-  
+  test expect {
+    -- the ticket should be served and at the party's table 
+    valid_serve_ticket : {
+      some t1: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = p.spot.orders + t1.foodOrder
+        k.placedOrder' = none
+        next = none -> none
+      }
+    } is sat 
+    -- the tickets food was shouldn't not be served to the party's table 
+    invalid_no_food_served : {
+      some t1: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = none
+      }
+    } is unsat 
+    -- the ticket should still not exist in the queue
+    invalid_ticket_not_dequeued: {
+      some t1: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = p.spot.orders + t1.foodOrder
+        k.placedOrder' = t1
+      }
+    } is unsat 
+    -- the ticket still points to another ticket even after it has been dequeued
+    invalid_ticket_still_next: {
+      some t1, t2: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = p.spot.orders + t1.foodOrder
+        k.placedOrder' = none
+        next = t1 -> t2
+      }
+    } is unsat 
+  }
+}
+
+//TODO
+test suite for leave{
+
 }
 
 --------------- SEAT TESTS ---------------
@@ -450,30 +514,7 @@ test suite for seat {
   } 
 }
 
---------------- ORDER TESTS --------------
 
-test suite for order {
-  -- testing guard: no orders can be @ the table
-  test expect {
-    order_onw: {
-      some p: Party, d: Dish | {
-        p.spot.orders = d
-        order[p]
-      }
-    } is unsat
-  } 
-
-  --testing guard: table must be full/assigned 
-  test expect {
-    order_two: {
-      some p: Party, d: Dish | {
-        beginning_of_day
-        p.spot != none
-        order[p]
-      }
-    } is unsat
-  } 
-}
 
 --------------- EATING TESTS --------------
 
@@ -547,3 +588,4 @@ test suite for beginning_of_day {
   assert party_init is necessary for beginning_of_day
   assert kitchen_init is necessary for beginning_of_day
 }
+

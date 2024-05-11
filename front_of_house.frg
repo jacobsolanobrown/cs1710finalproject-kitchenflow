@@ -413,81 +413,81 @@ pred seat_first{
 
 -- Only Enqueuing Trace --
 pred four_tickets{
-     some order1, order2, order3, order4: Ticket | {
-            #(order1 + order2 + order3 + order4) = 4
-            // State 0 - empty kitchen
-            kitchen_init
+  some order1, order2, order3, order4: Ticket | {
+    #(order1 + order2 + order3 + order4) = 4
+    // State 0 - empty kitchen
+    kitchen_init
 
-            //setup[o]... q.placeordr'= o
-            // State 1 - 1st order in!
-            Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
-            next' = none->none // no next node yet since only one node in queue
+    //setup[o]... q.placeordr'= o
+    // State 1 - 1st order in!
+    Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
+    next' = none->none // no next node yet since only one node in queue
 
-            // State 2 - 2nd order in!
-            Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
-            next'' = order2->order1 // previous tail becomes head/next 
+    // State 2 - 2nd order in!
+    Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
+    next'' = order2->order1 // previous tail becomes head/next 
 
-            // State 3 - 3rd order in!
-            Kitchen.placedOrder''' = order3
-            next''' = order3->order2 + order2->order1
+    // State 3 - 3rd order in!
+    Kitchen.placedOrder''' = order3
+    next''' = order3->order2 + order2->order1
 
-            // State 4 - 4th order in!
-            Kitchen.placedOrder'''' = order4
-            next'''' = order4->order3 + order3->order2 + order2->order1
+    // State 4 - 4th order in!
+    Kitchen.placedOrder'''' = order4
+    next'''' = order4->order3 + order3->order2 + order2->order1
 
-            // make sure that it follows our enqueue model 
-            enqueue[Kitchen, order1]
-            next_state enqueue[Kitchen, order2]
-            next_state next_state enqueue[Kitchen, order3]
-            next_state next_state next_state enqueue[Kitchen, order4]
-        }
+    // make sure that it follows our enqueue model 
+    enqueue[Kitchen, order1]
+    next_state enqueue[Kitchen, order2]
+    next_state next_state enqueue[Kitchen, order3]
+    next_state next_state next_state enqueue[Kitchen, order4]
+  }
 }
 
 -- Enqueue and Dequeue Trace --
 pred order_and_serve {
-         some order1, order2: Ticket, t: Table | {
-            // State 0 - nothing in kitchen
-            kitchen_init
-            t.orders = none
+  some order1, order2: Ticket, t: Table | {
+    // State 0 - nothing in kitchen
+    kitchen_init
+    t.orders = none
 
-            // State 1 - 1st order in!
-            Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
-            next' = none->none // no next node yet since only one node in queue
-            t.orders' = t.orders
-
-
-            // State 2 - 2nd order in!
-            Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
-            next'' = order2->order1 // previous tail becomes head/next 
-            t.orders'' = t.orders'
+    // State 1 - 1st order in!
+    Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
+    next' = none->none // no next node yet since only one node in queue
+    t.orders' = t.orders
 
 
-            // State 3 - 1st order out!
-            Kitchen.placedOrder''' = order2
-            next''' = none->none
-            t.orders''' = t.orders'' + order1.foodOrder
+    // State 2 - 2nd order in!
+    Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
+    next'' = order2->order1 // previous tail becomes head/next 
+    t.orders'' = t.orders'
 
-            // State 4 - 2nd order out!
-            initKitchen
-            t.orders'''' = t.orders''' + order2.foodOrder
 
-            // make sure that it follows our enqueue and dequeue model 
-            enqueue[Kitchen, order1]
-            next_state enqueue[Kitchen, order2]
-            next_state next_state dequeue[Kitchen]
-            next_state next_state next_state dequeue[Kitchen]
-        }
+    // State 3 - 1st order out!
+    Kitchen.placedOrder''' = order2
+    next''' = none->none
+    t.orders''' = t.orders'' + order1.foodOrder
+
+    // State 4 - 2nd order out!
+    initKitchen
+    t.orders'''' = t.orders''' + order2.foodOrder
+
+    // make sure that it follows our enqueue and dequeue model 
+    enqueue[Kitchen, order1]
+    next_state enqueue[Kitchen, order2]
+    next_state next_state dequeue[Kitchen]
+    next_state next_state next_state dequeue[Kitchen]
+  }
 }
 
 --- Run Statements --
 
---> ONLY SHOWS ENQUEUING
+--> Only shows enqueing for 4 tickets in a queue  
 // run {
 //     wellformed
 //     four_tickets
 // } for 4 Ticket, 1 Kitchen
 
---> SHOWS ENQUEUE + DEQUEUE
+--> Shows enqueing and dequing 2 tickets in a queue 
 // run {
 //     wellformed
 //     order_and_serve
