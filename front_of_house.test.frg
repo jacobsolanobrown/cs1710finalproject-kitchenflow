@@ -258,7 +258,6 @@ test suite for party_init {
   }
 }
 
-
 ----------- CUSTOMER_INIT TESTS -----------
 
 test suite for customer_init {
@@ -311,7 +310,7 @@ test expect {
 } is sat 
 }
 
-      -- no orders are placed in init state
+-- no orders are placed in init state
 test expect {
   kitchen_two: {
     kitchen_init
@@ -325,6 +324,13 @@ test expect {
 pred valid_kitchen_init {
   Kitchen.placedOrder = none
   next = none->none
+}
+
+pred invalid_kitchen_init{
+  some t1, t2: Ticket | {
+    Kitchen.placedOrder = t1
+    next = t1->t2
+  }
 }
 
 pred not_invalid_kitchen_init {
@@ -448,7 +454,50 @@ test suite for order_ticket{
 ----------- SERVE_TICKET TESTS -----------
 
 test suite for serve_ticket{
-  
+  test expect {
+    -- the ticket should be served and at the party's table 
+    valid_serve_ticket : {
+      some t1: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = p.spot.orders + t1.foodOrder
+        k.placedOrder' = none
+        next = none -> none
+      }
+    } is sat 
+    -- the tickets food was shouldn't not be served to the party's table 
+    invalid_no_food_served : {
+      some t1: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = none
+      }
+    } is unsat 
+    -- the ticket should still not exist in the queue
+    invalid_ticket_not_dequeued: {
+      some t1: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = p.spot.orders + t1.foodOrder
+        k.placedOrder' = t1
+      }
+    } is unsat 
+    -- the ticket still points to another ticket even after it has been dequeued
+    invalid_ticket_still_next: {
+      some t1, t2: Ticket, p: Party, k: Kitchen | {
+        k.placedOrder = t1
+        serve_ticket[p]
+        p.spot.orders' = p.spot.orders + t1.foodOrder
+        k.placedOrder' = none
+        next = t1 -> t2
+      }
+    } is unsat 
+  }
+}
+
+//TODO
+test suite for leave{
+
 }
 
 --------------- SEAT TESTS ---------------
@@ -539,3 +588,4 @@ test suite for beginning_of_day {
   assert party_init is necessary for beginning_of_day
   assert kitchen_init is necessary for beginning_of_day
 }
+
