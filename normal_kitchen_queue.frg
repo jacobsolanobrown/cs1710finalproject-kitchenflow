@@ -7,7 +7,7 @@ abstract sig Dish {}
 -- menu options 
 one sig Chicken, Burger, Tofu extends Dish {}
 
-// TODO: sets of ints where each int represents a menu option 
+// TODO: sets of tts where each int represents a menu option 
 
 ---------------- Kitchen ----------------
 sig Ticket {

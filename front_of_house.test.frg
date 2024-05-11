@@ -3,14 +3,15 @@
 
 open "front_of_house.frg"
 
-pred invalidState { some t: Table | {
-    t in Available.tables and t in Full.tables }
-}
 -------- VALID_STATE TESTS --------
-pred wrapperInvalid {not invalidState}
-test suite for valid_state {
+pred invalidState0 { some t: Table |  t in Available.tables and t in Full.tables}
 
-  assert wrapperInvalid is necessary for valid_state
+pred invalidState1 {some t: Table | t.tableNumber <0 or t.tableNumber > 6}
+
+pred wrapperInvalidTable {not invalidState0 and not invalidState1}
+
+test suite for valid_state {
+  assert wrapperInvalidTable is necessary for valid_state
   -------- tests based on predicates properties --------
   -- no table exists that is in both Available and Full
   test expect {
@@ -292,15 +293,16 @@ test suite for customer_init {
   }  
 }
 
------------ KITCHEN_INIT TESTS -----------
-
-test suite for kitchen_init{ 
-
-}
-
 ----------- ORDER_TICKET TESTS -----------
 
 test suite for order_ticket{
+  test expect {
+    order0: {
+      all order: Ticket | {
+        order_ticket => 
+      }
+    }
+  }
 
 }
 
