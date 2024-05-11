@@ -418,8 +418,6 @@ test suite for order {
 
 ----------- ORDER_TICKET TESTS -----------
 
-pred valid
-
 test suite for order_ticket{
   test expect {
     validTicketOrder0: {
@@ -567,7 +565,7 @@ test suite for eating {
 --------------- LEAVE TESTS --------------
 
 test suite for leave {
-    //TODO - finish 
+    
 }
 
 ---------- BEGINNING OF DAY TESTS ---------

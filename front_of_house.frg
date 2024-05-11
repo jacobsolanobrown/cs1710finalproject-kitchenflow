@@ -168,7 +168,6 @@ pred server_init {
 --> no ticket points to another ticket 
 pred kitchen_init {
     Kitchen.placedOrder = none // no queue 
-    foodOrder = none
     next = none->none  // there is no next yet 
 }
 
