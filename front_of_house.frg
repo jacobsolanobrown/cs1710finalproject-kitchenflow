@@ -82,8 +82,9 @@ pred valid_state {
  --> Each table has a unique table #
   all disj t1, t2: Table | {
     //assign unique table number 
-    //TODO: limit table number scope?
-    t1.tableNumber != t2.tableNumber // I think this is better 
+    //for future consideration: consider limiting table number scope in 
+    //more generalizable way 
+    t1.tableNumber != t2.tableNumber 
   }
 } 
 
@@ -241,7 +242,7 @@ pred order[p: Party] {
   }
 }
 
---> helper for order, TODO::
+
 pred order_ticket[p: Party] {
   -- there exists the party's entire order/ticket 
   some partyOrder: Ticket | {
@@ -294,7 +295,7 @@ pred eating[p: Party] {
   }
 }
 
---> Helper for eating, TODO
+--> Helper for eating
 pred serve_ticket[p: Party] {
     -- ACTION
     --> add the tickets orders to their corresponding party's (only one party for now)
@@ -311,9 +312,8 @@ pred serve_ticket[p: Party] {
 --> represents customers leaving the resturant, resets all fields 
 
 pred leave[p: Party] {
-  -- GARD 
-  -- TODO: custoemrs done eating ??? do we need one idk 
-
+  -- GUARD 
+  p.spot.orders not in Kitchen.placedOrder.^next
   --> ACTION
   --> reset customer status to waiting
   --> restet party spot to none 
@@ -388,12 +388,15 @@ pred customers_transition_with_party {
 
 // run {customers_transition_with_party} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
---> customer_lifcycle takes one party through a resturant lifecycle 
-pred customer_lifcycle {
+--> customer_lifecycle takes one party through a resturant lifecycle 
+pred customer_lifecycle {
   beginning_of_day
   always wellformed
   some p: Party | {always run_states[p]}
 }
+
+run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+
 
 // run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
@@ -404,7 +407,7 @@ pred seat_first{
   }} until {all_parties_seated}
 }
 
-run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
 --------------- RUN STATEMENTS for normal_kitchen_queue.frg --------------
 

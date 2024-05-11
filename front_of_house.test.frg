@@ -327,7 +327,8 @@ test suite for order {
             }
         }
     } is unsat
-
+    
+    // checking that a customer's state is updated after they order 
     validOrder1: {
     some p: Party, c: Customer | {
       c in p.people
@@ -356,8 +357,6 @@ test suite for order {
     } is unsat
   }
 }
-
-  // checking that a customer's state is updated after they order 
 
 
 ----------- ORDER_TICKET TESTS -----------

@@ -290,7 +290,8 @@ pred serveTicket[p: Party] {
 pred leave[p: Party] {
   -- GARD 
   -- TODO: custoemrs done eating ??? do we need one idk 
-
+  p.spot.orders not in Kitchen.placedOrder.^next
+  -- set dishes compared to set of lone ticket
   --> ACTION
   --> reset customer status to waiting
   --> restet party spot to none 
