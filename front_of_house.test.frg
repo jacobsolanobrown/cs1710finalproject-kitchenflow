@@ -293,9 +293,9 @@ test suite for customer_init {
     } is sat  
   }  
 }
-
+//TODO
 test suite for kitchen_init {}
-
+//TODO
 test suite for seat{}
 
 // TODO
@@ -379,30 +379,30 @@ test suite for order_ticket{
       }
     } is sat
 
-/*     invalidTicketOrder1: {
+    invalidTicketOrder1: {
       some p: Party, o: Ticket, k: Kitchen | {
-        order_ticket[p] implies {
-          k.placedOrder = o and k.placedOrder' = none
-          p.spot.orders = o.foodOrder
-          p.spot.orders' != o.foodOrder
-        }
+        order_ticket[p] 
+        k.placedOrder = none and k.placedOrder' = none
+        p.spot.orders = o.foodOrder
+        p.spot.orders' != o.foodOrder
       }
-    } is unsat */
+    } is unsat 
   }
 
 }
 
+//TODO
 test suite for eating{}
-
+//TODO
 test suite for serve_ticket{}
-
+//TODO
 test suite for leave{}
-
+//TODO
 test suite for customerTransition{}
-
+//TODO
 test suite for run_states{}
 ----------- SERVE_TICKET TESTS -----------
-
+//TODO 
 test suite for serve_ticket{
   
 }
