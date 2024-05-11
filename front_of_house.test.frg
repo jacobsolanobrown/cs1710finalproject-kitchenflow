@@ -294,7 +294,9 @@ test suite for customer_init {
 }
 
 test suite for order {
-    test expect {
+  
+  test expect {
+    //checking that the party's table stays the same
     validOrder0: {
         one p: Party, t1: Table| {
           p.spot.orders = none 
@@ -317,8 +319,38 @@ test suite for order {
             }
         }
     } is unsat
+
+    validOrder1: {
+    some p: Party, c: Customer | {
+      c in p.people
+      c.status = Seated 
+      order[p]
+      c.status' = Ordered
+    } 
+    } is sat
+
+    invalidOrder1: {
+      some p: Party, c: Customer | {
+        c in p.people
+        c.status = Seated 
+        order[p]
+        c.status' = Seated
+      } 
+    } is unsat
+
+    invalidOrder2: {
+      some p: Party, c: Customer | {
+        c not in p.people
+        c.status = Seated 
+        order[p]
+        c.status' = Ordered
+      } 
+    } is unsat
   }
 }
+
+  // checking that a customer's state is updated after they order 
+
 
 ----------- ORDER_TICKET TESTS -----------
 
