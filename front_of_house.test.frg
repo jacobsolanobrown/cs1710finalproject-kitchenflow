@@ -397,10 +397,6 @@ test suite for order_ticket{
 
 }
 
-//TODO
-test suite for serve_ticket{}
-//TODO
-test suite for leave{}
 
 ----------- SERVE_TICKET TESTS -----------
 //TODO 
