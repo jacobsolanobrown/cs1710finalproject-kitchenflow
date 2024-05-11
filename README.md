@@ -1,5 +1,5 @@
 # <div align=center> Logic 4 Systems Final Project by @lmckeown, @mmack1 & @gsolano </div>
-# <div align=center> Resturant Flow </div>
+# <div align=center> Restaurant Flow </div>
 
 ### Project Objective:
 
@@ -15,7 +15,9 @@ The Dining Area:
 - Upon a parties arrival in the restaurant, they are assigned a Table. In this model, tables have a capacity of either 2 or 4. Each table also has a unique table number and a set of customer orders. These are all fields of the Table sig. Additionally, each table can either be Available or Full. Each table must be in one of these status lists. 
 
 The Kitchen: 
-- TODO: fill in later me!
+- The Kitchen is our integrated queue data structure for this model to keep the flow of the restaurant going. 
+- The Kitchen has three important sigs, the Kitchen, which is our pointer for the tail of the queue, the nodes in the queue which represent ticket orders and keep the structure of the queue as they point to the next ticket order to be cooked, and in those ticket orders, they store what the table has ordered in a set of Dishes.
+- The Kitchen has two operations, enqueue, dequeue. Enqueue sends a ticket order to the kitchen and adds it to the tail of the queue (FIFO!) so the kitchen can start cooking! Dequeue deletes a ticket order and sends the ticket order's value (set of Dishes), to the table, and the Kitchen then moves the second order in place to the front. 
 
 ### Model Goals & Project Scope 
 #### Foundation Goals: 
@@ -31,11 +33,11 @@ As stated above, our reach goal is to develop an additional kitchen queue to tak
 
 Our original reach goals were to model how different sets of kitchen staff effect kitchen queue time. For example, entry-level kitchen staff might only be able to focus on one dish at a time while a veteran who has spent 5 years on staff can make three dishes at a time while focusing on an appetizer. All these factors effect how the speed and method at which the kitchen queue gets taken care of. 
 
-TODO: ?? DO WE NEED TO DISCUSS WHY THESE HAVE CHANGED ??
+However, when creating our model, we quickly identified how many components need to be organized in this type of model so that nothing is conflicting with each other and ensuring that other components keep track of all the other components as well. So, we kept working on towards ensuring our foundation goals a very solid foundation that works well for our wanted model. 
 
 ### Model Visualization | Running our Model: 
 
--- TODO: how to interpret the visualizer: not sure we need anything here?? not sure we need this 
+-- N/A
 
 -- TODO: explain different run statements and what components of model they show --> they are pretty well commented so we might not need to write much
 
@@ -43,8 +45,11 @@ TODO: ?? DO WE NEED TO DISCUSS WHY THESE HAVE CHANGED ??
 TODO: fill in 
 - talk about scope and limits to model 
 - defining table sizes 
+    - 
 - kitchen queue limits 
+    - Limited by state counters
 - limits about parties moving simultaneously through the restaurant 
+
 
 ### Stakeholders 
 
@@ -61,6 +66,4 @@ This tool would directly impact the <b> kitchen staff </b>, improving their work
 Lastly this tool could improve <b> customers </b> experience at the restaurant!
 
 ### Collaborators
-- Our mentor @TA Ezra! 
-- Tim Nelson
-
+- Our mentor @TA Ezra!
