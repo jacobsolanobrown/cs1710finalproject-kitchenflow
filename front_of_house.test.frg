@@ -496,7 +496,9 @@ test suite for eating {
 
 --------------- LEAVE TESTS --------------
 
-test suite for leave {}
+test suite for leave {
+
+}
 
 ---------- BEGINNING OF DAY TESTS ---------
 
