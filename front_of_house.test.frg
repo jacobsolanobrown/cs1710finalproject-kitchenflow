@@ -3,6 +3,7 @@
 
 open "front_of_house.frg"
 open "normal_kitchen_queue.frg"
+open "normal_kitchen_queue.frg"
 
 -------- VALID_STATE TESTS --------
 pred invalidState0 { some t: Table |  t in Available.tables and t in Full.tables}
@@ -362,8 +363,16 @@ test suite for order {
 
 ----------- ORDER_TICKET TESTS -----------
 
-test suite for order_ticket{
+test suite for order_ticket {
+  -- testing guard 
   test expect {
+    st_one: {
+      some d: Dish , p: Party| {  
+        p.spot.orders = d
+        order_ticket[p]
+      }
+    } is unsat 
+  }  test expect {
     validTicketOrder0: {
       one p: Party, o: Ticket {
         order_ticket[p] implies {
@@ -446,8 +455,61 @@ test suite for run_states{}
 ----------- SERVE_TICKET TESTS -----------
 //TODO 
 test suite for serve_ticket{
-  
+  --??
+
 }
+
+test suite for seat {
+  -- testing gaurd: party cannot be assigned a table already
+  test expect {
+    seat_one: {
+      some p: Party, t: Table  | {
+        p.spot = t
+        seat[p]
+      }
+    } is unsat
+  } 
+}
+
+test suite for order {
+  -- testing guard: no orders can be @ the table
+  test expect {
+    order_onw: {
+      some p: Party, d: Dish | {
+        p.spot.orders = d
+        order[p]
+      }
+    } is unsat
+  } 
+
+  --testing guard: table must be full/assigned 
+  test expect {
+    order_two: {
+      some p: Party, d: Dish | {
+        beginning_of_day
+        p.spot != none
+        order[p]
+      }
+    } is unsat
+  } 
+}
+
+test suite for eating {
+  -- testing guard: making sure that kitchen has an order
+  test expect {
+    eating_one: {
+      some t: Ticket, p: Party | {
+        eating[p]
+        Kitchen.placedOrder = none
+      }
+    } is unsat
+  } 
+}
+
+test suite for leave {
+
+}
+
 
 test suite for beginning_of_day {
   assert valid_state is necessary for beginning_of_day

@@ -1,6 +1,7 @@
 #lang forge/temporal
 
 open "normal_kitchen_queue.frg"
+open "front_of_house.frg"
 
 ----- TESTING -----
 
@@ -10,7 +11,7 @@ test suite for enqueue {
         simpleOrderTickets: {
             some order1, order2: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1 
@@ -29,7 +30,7 @@ test suite for enqueue {
         negSimpleOrderTickets: {
             some order1, order2: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1 
@@ -53,7 +54,7 @@ test suite for dequeue {
         simpleServeTickets: {
             some order1: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1 
@@ -73,7 +74,7 @@ test suite for dequeue {
         negSimpleServeTickets: {
             some order1, order2: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1
@@ -93,7 +94,7 @@ test suite for dequeue {
         serveAndOrder1: {
             some order1, order2: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1 
@@ -118,7 +119,7 @@ test suite for dequeue {
         serveAndOrder2: {
             some order1, order2, order3: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1 
@@ -158,7 +159,7 @@ pred validWellformed {
 // for wellformed assertion 
 pred nonvalidWellformed {
     some k: Kitchen | {
-        not init[k] // not at the empty state (stuff in queue)
+        not kitchen_init // not at the empty state (stuff in queue)
         all order: Ticket | {
             // the same order cannot be linked to itself - but for a bad wellformed 
             // it can 
@@ -179,7 +180,7 @@ test suite for wellformed {
             wellformed
             some order1: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1 
@@ -199,7 +200,7 @@ test suite for wellformed {
             wellformed
             some order1: Ticket, q: Kitchen | {
                 // State 0 - empty kitchen
-                init[q]
+                kitchen_init
 
                 // State 1 - 1st order in!
                 q.placedOrder' = order1  // points to itself when in queue -- dont really care what happens outside of queue? but can probably implement it
