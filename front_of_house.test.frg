@@ -293,16 +293,37 @@ test suite for customer_init {
   }  
 }
 
+test suite for order {
+    test expect {
+    validOrder0: {
+        one p: Party, t1: Table| {
+          p.spot.orders = none 
+          p.spot in Full.tables 
+          p.spot = t1
+          order[p] 
+          p.spot = t1
+      }
+    } is sat
+
+    // the party's table is not supposed to change when an order takes place
+    invalidOrder0: {
+          one p: Party {
+            some disj t1, t2: Table | {
+              p.spot.orders = none 
+              p.spot in Full.tables 
+              p.spot = t1
+              order[p] 
+              p.spot = t2
+            }
+        }
+    } is unsat
+  }
+}
+
 ----------- ORDER_TICKET TESTS -----------
 
 test suite for order_ticket{
-  test expect {
-    order0: {
-      all order: Ticket | {
-        order_ticket => 
-      }
-    }
-  }
+
 
 }
 
