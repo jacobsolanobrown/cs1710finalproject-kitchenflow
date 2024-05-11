@@ -4,8 +4,6 @@ open "normal_kitchen_queue.frg"
 
 option problem_type temporal 
 
-//TODO: take out customersAtTable field
-
 // EXTRA FUNCTIONALITY:
 --> add price to dish 
 --> have a set --> cardinality is number of custiomers in party, each set element represents a menu option, each num coresponds to menu item 
@@ -39,7 +37,6 @@ sig Table {
   tableNumber: one Int,
   capacity: one Int,
   var orders: set Dish
-  // price: lone Int
 }
 
 abstract sig TableStatus {
@@ -168,7 +165,6 @@ pred server_init {
 --> no ticket points to another ticket 
 pred kitchen_init {
     Kitchen.placedOrder = none // no queue 
-    foodOrder = none
     next = none->none  // there is no next yet 
 }
 
@@ -384,7 +380,7 @@ pred customer_lifecycle {
 }
 
 // run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
-run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+// run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
 
 --------------- RUN STATEMENTS for normal_kitchen_queue.frg --------------
