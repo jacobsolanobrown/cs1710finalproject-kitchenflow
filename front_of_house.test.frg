@@ -262,7 +262,6 @@ test suite for party_init {
 
 test suite for customer_init {
   -------- tests  on predicates properties --------
-
   -- all must be waiting 
   test expect {
     customer_one: {
@@ -450,7 +449,6 @@ test suite for order_ticket{
 
 }
 
-
 ----------- SERVE_TICKET TESTS -----------
 
 test suite for serve_ticket{
@@ -495,11 +493,6 @@ test suite for serve_ticket{
   }
 }
 
-//TODO
-test suite for leave{
-
-}
-
 --------------- SEAT TESTS ---------------
 
 test suite for seat {
@@ -512,9 +505,9 @@ test suite for seat {
       }
     } is unsat
   } 
+
+  //TODO - finish 
 }
-
-
 
 --------------- EATING TESTS --------------
 
@@ -574,8 +567,7 @@ test suite for eating {
 --------------- LEAVE TESTS --------------
 
 test suite for leave {
-  
-
+    //TODO - finish 
 }
 
 ---------- BEGINNING OF DAY TESTS ---------

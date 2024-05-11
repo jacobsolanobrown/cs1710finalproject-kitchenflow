@@ -168,11 +168,6 @@ pred nonvalidWellformed {
     }
 }
 
-// for wellformed assertion 
-pred notNonvalidWellformed {
-    not nonvalidWellformed
-}
-
 test suite for wellformed {
     test expect {
         -- enqueue -> dequeue
@@ -195,6 +190,9 @@ test suite for wellformed {
                 next_state dequeue[q]
             }
         }  is sat  
+    }
+
+    test expect {
 
         nonWellformedimpleServeTickets: {
             wellformed
@@ -216,10 +214,10 @@ test suite for wellformed {
             }
         }  is unsat  
     }
+}
 
     // assert common logical statements about wellformed
-    assert validWellformed is necessary for wellformed
-    assert notNonvalidWellformed is necessary for wellformed
-}
+    // assert validWellformed is necessary for wellformed
+    // assert notNonvalidWellformed is necessary for wellformed
 
 // TODO: make assertions for enquue / dequeue

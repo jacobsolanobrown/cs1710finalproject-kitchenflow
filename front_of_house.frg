@@ -47,16 +47,6 @@ abstract sig TableStatus {
 }
 one sig Available, Full extends TableStatus {} 
 
----------------- Dish ----------------
-///?? KEEP IN HERE OR IN QUEUE 
-
-// abstract sig Dish {
-//    price: one Int
-// }
-// sig Burger extends Dish {}
-// sig Salad extends Dish {}
-// sig ChickTenders extends Dish {}
-
 /*
 --------------- VALID STATE --------------
 Ensures that each state is valid - no crazy instances
@@ -178,6 +168,7 @@ pred server_init {
 --> no ticket points to another ticket 
 pred kitchen_init {
     Kitchen.placedOrder = none // no queue 
+    foodOrder = none
     next = none->none  // there is no next yet 
 }
 
@@ -374,9 +365,8 @@ pred beginning_of_day {
   kitchen_init
 }
 
-// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
-
---> customers_transition_with_party shows customers transitioning through the CustomerStatus states with their parties - nothing else is monitored here 
+--> customers_transition_with_party shows customers transitioning through the CustomerStatus states with their parties
+-- only customer states change here --> tables/orders/etc. don't 
 pred customers_transition_with_party {
   beginning_of_day
   always {
@@ -386,28 +376,16 @@ pred customers_transition_with_party {
   }
 }
 
-// run {customers_transition_with_party} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
---> customer_lifecycle takes one party through a resturant lifecycle 
+--> customer_lifecycle takes one party through a full resturant lifecycle 
 pred customer_lifecycle {
   beginning_of_day
   always wellformed
   some p: Party | {always run_states[p]}
 }
 
+// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
 run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
-
-// run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
-pred seat_first{
-  beginning_of_day
-  {some p: Party {
-    seat[p]
-  }} until {all_parties_seated}
-}
-
-// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
 --------------- RUN STATEMENTS for normal_kitchen_queue.frg --------------
 
@@ -468,7 +446,7 @@ pred order_and_serve {
     t.orders''' = t.orders'' + order1.foodOrder
 
     // State 4 - 2nd order out!
-    initKitchen
+    kitchen_init
     t.orders'''' = t.orders''' + order2.foodOrder
 
     // make sure that it follows our enqueue and dequeue model 
