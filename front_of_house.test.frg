@@ -2,6 +2,7 @@
 //assert and is sat/unsat/ is theorem
 
 open "front_of_house.frg"
+open "normal_kitchen_queue.frg"
 
 -------- VALID_STATE TESTS --------
 pred invalidState0 { some t: Table |  t in Available.tables and t in Full.tables}
@@ -355,7 +356,20 @@ test suite for order {
 ----------- ORDER_TICKET TESTS -----------
 
 test suite for order_ticket{
-
+  test expect {
+    validTicketOrder0: {
+      one p: Party, o: Ticket {
+        order_ticket[p] implies kitchen_init
+        no p.spot.orders
+        all c: Customer | {
+          c in p.people implies c.status != Seated
+        }
+        one k: Kitchen | {
+          k.placedOrder = o
+        }
+      }
+    } is sat
+  }
 
 }
 
