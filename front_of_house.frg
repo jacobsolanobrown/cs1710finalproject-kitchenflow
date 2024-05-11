@@ -61,16 +61,19 @@ one sig Available, Full extends TableStatus {}
 --------------- VALID STATE --------------
 Ensures that each state is valid - no crazy instances
 --> Tables are either Available OR Full | can't be both
---> Customers are either Waiting or Seated or Ordered or Ready4Check | can't be in more than one 
+--> Customers are either Waiting or Seated or Ordered or Ready4Check | cant be none
 --> Table numbers must be positive/in a specific range [1-5]
 --> Each Table should have a unique table number
---> ?? need to state how many people are in the resturant 
+--> rn we only have 6 tables in our resturant!
 */
 
 pred valid_state {
   --> Tables are either full or occupied, cannot be both
   Table = Available.tables + Full.tables
   no t : Table | {t in Available.tables and t in Full.tables}
+
+  --> Customers are either Waiting or Seated or Ordered or Ready4Check
+  all c: Customer | c.status != none
 
  --> Tables numbers cannot be negative / need to be in a specific range (1-5)
  all t: Table | t.tableNumber > 0 and t.tableNumber < 6
@@ -99,6 +102,7 @@ The following preds work together to Initialize Resturant at the beginning of th
 --> No customers at any table
 --> No orders at the table
 --> Setting capacity to specified range {2, 4}
+--> Must be at least one table in the resturant 
 
 pred table_init {
   Table = Available.tables
@@ -112,6 +116,8 @@ pred table_init {
     t.capacity = 2 or t.capacity = 4
     #{c: Customer | c in t.customersAtTable} = 0 //duplicate?
   }
+
+  #{Table} >= 1 
 }
 
 --------------- init customers --------------
@@ -145,6 +151,7 @@ pred party_init {
 --------------- init servers --------------
 --> There are not more servers than tables in resturant
 --> Each table only has one server
+--> Every table has a server 
 
 pred server_init {
   valid_state implies {
@@ -157,6 +164,12 @@ pred server_init {
     s1.myTables != s2.myTables
     no t: Table | t in s1.myTables and t in s2.myTables // this might be better 
   }
+
+  all s: Server | {
+    s.myTables != none
+  }
+
+  #{Server.myTables} = #{Table}
 }
 
 --------------- init kitchen --------------
@@ -228,6 +241,7 @@ pred order[p: Party] {
   }
 }
 
+--> helper for order, TODO::
 pred order_ticket[p: Party] {
   -- there exists the party's entire order/ticket 
   some partyOrder: Ticket | {
@@ -280,6 +294,7 @@ pred eating[p: Party] {
   }
 }
 
+--> Helper for eating, TODO
 pred serve_ticket[p: Party] {
     -- ACTION
     --> add the tickets orders to their corresponding party's (only one party for now)
@@ -346,12 +361,6 @@ pred run_states[p: Party] {
     c.status = Ready4Check => leave[p]
   }
 } 
-------------------- CHECKS ------------------
-pred all_parties_seated{
-  all p: Party {
-    p.spot != none
-  }
-}
 
 --------------- RUN STATEMENTS for front_of_house.frg --------------
  
@@ -362,7 +371,7 @@ pred beginning_of_day {
   server_init
   customer_init
   party_init
-  init[Kitchen]
+  kitchen_init
 }
 
 // run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
@@ -381,7 +390,6 @@ pred customers_transition_with_party {
 
 --> customer_lifcycle takes one party through a resturant lifecycle 
 pred customer_lifcycle {
-  kitchen_init -- ensure empty kitchen in beginning 
   beginning_of_day
   always wellformed
   some p: Party | {always run_states[p]}
@@ -396,7 +404,7 @@ pred seat_first{
   }} until {all_parties_seated}
 }
 
-run {customer_lifcycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
+run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
 --------------- RUN STATEMENTS for normal_kitchen_queue.frg --------------
 

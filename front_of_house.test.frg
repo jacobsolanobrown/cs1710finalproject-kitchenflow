@@ -3,7 +3,10 @@
 
 open "front_of_house.frg"
 
+-------- VALID_STATE TESTS --------
+
 test suite for valid_state {
+  -------- tests based on predicates properties --------
   -- no table exists that is in both Available and Full
   test expect {
     vs_one : {
@@ -46,12 +49,53 @@ test suite for valid_state {
         }
       } is unsat
     } 
+
+    -------- example based tests --------
+    -- sat ex: 3 Tables | all with diff nums | all customers waiting 
+    test expect {
+      vs_five : {
+        valid_state
+        all t1, t2, t3: Table | {
+          t1 in Available 
+          t2 in Available 
+          t3 in Full 
+          t1.tableNumber != t2.tableNumber
+          t1.tableNumber != t3.tableNumber
+          t2.tableNumber != t3.tableNumber
+        }
+      } is sat 
+    } 
+
+    -- unsat ex: not all tables have a status 
+    test expect {
+      vs_six: {
+        valid_state
+        some t1, t2, t3: Table | {
+          t1 in Available
+          t2 in Available
+          TableStatus = Available
+        }
+      } is unsat 
+    } 
+
+     -- unsat ex: customer status is none 
+    test expect {
+      vs_seven: {
+        valid_state
+        some c: Customer | {
+          c.status = none 
+        } 
+    } is unsat 
+}
 }
 
+---------- SERVER_INIT TESTS ----------
+
 test suite for server_init {
+    -------- tests based on predicates properties --------
   -- a table can only 'belong' to one server 
     test expect {
-      server_two : {
+      server_one : {
         server_init
         some disj s1, s2: Server | {
           some t: Table | {
@@ -61,9 +105,47 @@ test suite for server_init {
         }
       } is unsat
     } 
+
+    -- too many servers in resturant 4 the tables! 
+    test expect {
+      server_two : {
+        valid_state
+        server_init
+        table_init
+        all t: Table, s: Server | {
+          #{t} < #{s}
+        }
+      } is unsat
+    }
+
+    -- table does not have server
+    test expect {
+      server_three : {
+        valid_state
+        server_init
+        table_init
+        #{Server.myTables} != #{Table}
+      } is unsat
+    }
+
+    -------- example based tests --------
+    test expect {
+      server_four : {
+        valid_state
+        server_init
+        table_init
+        some s1, s2: Server, t1, t2: Table | {
+          s1.myTables = t1
+          s2.myTables = t2
+        }
+      } is sat
+    }
 }
 
+----------- TABLE_INIT TESTS -----------
+
 test suite for table_init {
+  -------- tests based on predicates properties --------
   -- no tables can be in full in init state 
   test expect {
       table_one : {
@@ -98,15 +180,38 @@ test suite for table_init {
   -- table capacity makes sence 
   test expect {
     table_four : {
-
-
       table_init
       some t: Table | {
         t.capacity < 0 
       }
     } is unsat 
   }
+
+  -------- example based tests --------
+   test expect {
+    table_five : {
+      table_init
+      some t1, t2: Table | {
+        Available.tables = t1 + t2
+        t1.capacity = 4
+        t2.capacity = 2
+      }
+    } is sat 
+   }
+
+    test expect {
+        table_six : {
+          table_init
+          some t1, t2: Table | {
+            Available.tables = t1 + t2
+            t1.capacity = -1
+          }
+        } is unsat 
+  }
 }
+
+----------- PARTY_INIT TESTS ----------
+-------- tests based on predicates properties --------
 
 test suite for party_init {
   -- no party has a size firld that dosen't equal the number of people in the party 
@@ -131,9 +236,29 @@ test suite for party_init {
       }
     } is unsat 
   }
+
+  -------- example based tests --------
+  test expect {
+    party_three: {
+      party_init
+      some c1, c2, c3: Customer | {
+        some p1: Party | {
+          c1 in p1.people
+          c2 in p1.people 
+          c3 in p1.people
+          p1.size = 3 
+        }
+      }
+    } is sat 
+  }
 }
 
+
+----------- CUSTOMER_INIT TESTS -----------
+
 test suite for customer_init {
+  -------- tests  on predicates properties --------
+
   -- all must be waiting 
   test expect {
     customer_one: {
@@ -145,17 +270,46 @@ test suite for customer_init {
       }
     } is unsat 
   }
+
+  -------- example based tests --------
+
+  -- general ex  
+  test expect {
+    customer_two: {
+      customer_init
+      some c1, c2: Customer, p1: Party | {
+        c1 in p1.people
+        c2 in p1.people
+        c1.status = Waiting 
+        c2.status = Waiting
+      }
+    } is sat  
+  }  
 }
 
+----------- KITCHEN_INIT TESTS -----------
 
 test suite for kitchen_init{ 
 
 }
 
+----------- ORDER_TICKET TESTS -----------
+
 test suite for order_ticket{
 
 }
 
+----------- SERVE_TICKET TESTS -----------
+
 test suite for serve_ticket{
   
+}
+
+test suite for beginning_of_day {
+  assert valid_state is necessary for beginning_of_day
+  assert table_init is necessary for beginning_of_day
+  assert server_init is necessary for beginning_of_day
+  assert customer_init is necessary for beginning_of_day
+  assert party_init is necessary for beginning_of_day
+  assert kitchen_init is necessary for beginning_of_day
 }
