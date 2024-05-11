@@ -170,8 +170,7 @@ pred nonvalidWellformed {
         // the same order cannot be linked to itself - but for a bad wellformed 
         // it can 
         order in order.^next
-    }
-    
+    } 
 }
 
 // for wellformed assertion 

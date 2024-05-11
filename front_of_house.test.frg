@@ -527,7 +527,7 @@ test suite for seat {
     } is unsat
   } 
 
-  //TODO - finish 
+  //TODO - finish @Liliana 
 }
 
 --------------- EATING TESTS --------------
@@ -587,7 +587,18 @@ test suite for eating {
 
 --------------- LEAVE TESTS --------------
 test suite for leave {
-    
+
+  -- teting guard 
+  test expect {
+    leave_one: {
+      some p: Party | {
+        p.spot.orders in Kitchen.placedOrder.^next
+        leave[p]
+      }
+    } is unsat
+  }
+
+  //TODO - finish @Liliana 
 }
 
 ---------- BEGINNING OF DAY TESTS ---------
