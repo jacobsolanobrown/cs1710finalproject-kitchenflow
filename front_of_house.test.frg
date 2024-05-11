@@ -397,58 +397,6 @@ test suite for order_ticket{
 
 }
 
-//TODO
-test suite for eating{
-  test expect {
-    //states need to update correctly
-    validEating0: {
-      some p: Party | {
-        all c: Customer | {
-          c in p.people
-          c.status != Ready4Check
-          eating[p]
-          c in p.people implies c.status = Ready4Check
-        }
-
-      }
-    } is sat
-
-    //states need to updated correctly, cannot have someone ready4check before having food and eating
-    invalidEating0: {
-      some p: Party | {
-        some c: Customer | {
-          c in p.people 
-          c.status = Ready4Check 
-          eating[p]
-          c.status = Waiting
-        }
-      }
-    } is unsat
-
-    invalidEating1: {
-      some p: Party | {
-        eating[p] and not serve_ticket[p]
-      }
-    } is unsat
-
-    validTable: {
-      some p: Party, t: Table| {
-        p.spot = t
-        eating[p]
-        p.spot' = t
-      }
-    } is sat
-  }
-
-}
-//TODO
-test suite for serve_ticket{}
-//TODO
-test suite for leave{}
-//TODO
-test suite for customerTransition{}
-//TODO
-test suite for run_states{}
 ----------- SERVE_TICKET TESTS -----------
 //TODO 
 test suite for serve_ticket{
@@ -510,7 +458,9 @@ test suite for eating {
 
 --------------- LEAVE TESTS --------------
 
-test suite for leave {}
+test suite for leave {
+
+}
 
 ---------- BEGINNING OF DAY TESTS ---------
 
