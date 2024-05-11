@@ -60,6 +60,9 @@ This tool would directly impact the <b> kitchen staff </b>, improving their work
 
 Lastly this tool could improve <b> customers </b> experience at the restaurant!
 
+This site was built using [GitHub Pages](https://pages.github.com/).
+
+
 ### [Video!](https://pages.github.com/](https://www.youtube.com/watch?v=bZxGMKSKqTQ)
 
 ### Collaborators
