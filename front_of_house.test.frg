@@ -93,7 +93,7 @@ test suite for valid_state {
           c.status = none 
         } 
     } is unsat 
-}
+  }
 }
 
 ---------- SERVER_INIT TESTS ----------
@@ -294,6 +294,13 @@ test suite for customer_init {
   }  
 }
 
+test suite for kitchen_init {}
+
+test suite for seat{}
+
+// TODO
+test suite for server_init {}
+----------- ORDER TESTS -----------
 test suite for order {
   
   test expect {
@@ -359,7 +366,8 @@ test suite for order_ticket{
   test expect {
     validTicketOrder0: {
       one p: Party, o: Ticket {
-        order_ticket[p] implies kitchen_init
+        order_ticket[p] implies {
+        kitchen_init
         no p.spot.orders
         all c: Customer | {
           c in p.people implies c.status != Seated
@@ -367,12 +375,32 @@ test suite for order_ticket{
         one k: Kitchen | {
           k.placedOrder = o
         }
+        }
       }
     } is sat
+
+/*     invalidTicketOrder1: {
+      some p: Party, o: Ticket, k: Kitchen | {
+        order_ticket[p] implies {
+          k.placedOrder = o and k.placedOrder' = none
+          p.spot.orders = o.foodOrder
+          p.spot.orders' != o.foodOrder
+        }
+      }
+    } is unsat */
   }
 
 }
 
+test suite for eating{}
+
+test suite for serve_ticket{}
+
+test suite for leave{}
+
+test suite for customerTransition{}
+
+test suite for run_states{}
 ----------- SERVE_TICKET TESTS -----------
 
 test suite for serve_ticket{

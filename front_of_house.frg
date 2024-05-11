@@ -89,7 +89,7 @@ pred valid_state {
 
 /*
 --------------- INIT STATES --------------
-The following preds work together to Initialize Resturant at the beginning of the day | Opening State 
+The following predicates work together to Initialize Resturant at the beginning of the day | Opening State 
 -- TABLE INIT
 -- CUSTOMER INIT 
 -- PARTY INIT 
