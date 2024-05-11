@@ -293,6 +293,7 @@ test suite for customer_init {
     } is sat  
   }  
 }
+
 //TODO
 test suite for kitchen_init {}
 //TODO
@@ -327,7 +328,7 @@ test suite for order {
             }
         }
     } is unsat
-    
+
     // checking that a customer's state is updated after they order 
     validOrder1: {
     some p: Party, c: Customer | {
@@ -391,7 +392,49 @@ test suite for order_ticket{
 }
 
 //TODO
-test suite for eating{}
+test suite for eating{
+  test expect {
+    //states need to update correctly
+    validEating0: {
+      some p: Party | {
+        all c: Customer | {
+          c in p.people
+          c.status != Ready4Check
+          eating[p]
+          c in p.people implies c.status = Ready4Check
+        }
+
+      }
+    } is sat
+
+    //states need to updated correctly, cannot have someone ready4check before having food and eating
+    invalidEating0: {
+      some p: Party | {
+        some c: Customer | {
+          c in p.people 
+          c.status = Ready4Check 
+          eating[p]
+          c.status = Waiting
+        }
+      }
+    } is unsat
+
+    invalidEating1: {
+      some p: Party | {
+        eating[p] and not serve_ticket[p]
+      }
+    } is unsat
+
+    validTable: {
+      some p: Party, t: Table| {
+        p.spot = t
+        eating[p]
+        p.spot' = t
+      }
+    } is sat
+  }
+
+}
 //TODO
 test suite for serve_ticket{}
 //TODO
