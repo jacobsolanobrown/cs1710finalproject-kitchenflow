@@ -1,5 +1,4 @@
 #lang forge
-//assert and is sat/unsat/ is theorem
 
 open "front_of_house.frg"
 open "normal_kitchen_queue.frg"
@@ -218,7 +217,6 @@ test suite for table_init {
 }
 
 ----------- PARTY_INIT TESTS ----------
--------- tests based on predicates properties --------
 
 test suite for party_init {
   -- no party has a size firld that dosen't equal the number of people in the party 
@@ -296,21 +294,42 @@ test suite for customer_init {
 
 
 test suite for kitchen_init{ 
-  -- no orders are placed in init state
-test expect {
-  kitchen_one: {
-    kitchen_init
-    some k: Kitchen | {
-      Kitchen.placedOrder != none 
-    }
-  } is unsat 
-}
+  // no orders are placed in init state
+  test expect {
+    kitchen_one: {
+      kitchen_init
+      some k: Kitchen | {
+        Kitchen.placedOrder != none 
+      }
+    } is unsat 
+  }
 
 }
 
 ----------- ORDER TESTS -----------
+
 test suite for order {
-  
+    -- testing guard: no orders can be @ the table
+  test expect {
+    order_onw: {
+      some p: Party, d: Dish | {
+        p.spot.orders = d
+        order[p]
+      }
+    } is unsat
+  } 
+
+  --testing guard: table must be full/assigned 
+  test expect {
+    order_two: {
+      some p: Party, d: Dish | {
+        beginning_of_day
+        p.spot != none
+        order[p]
+      }
+    } is unsat
+  } 
+
   test expect {
     //checking that the party's table stays the same
     validOrder0: {
@@ -399,7 +418,7 @@ test suite for order_ticket{
 
 
 ----------- SERVE_TICKET TESTS -----------
-//TODO 
+
 test suite for serve_ticket{
   
 }
@@ -418,30 +437,7 @@ test suite for seat {
   } 
 }
 
---------------- ORDER TESTS --------------
 
-test suite for order {
-  -- testing guard: no orders can be @ the table
-  test expect {
-    order_onw: {
-      some p: Party, d: Dish | {
-        p.spot.orders = d
-        order[p]
-      }
-    } is unsat
-  } 
-
-  --testing guard: table must be full/assigned 
-  test expect {
-    order_two: {
-      some p: Party, d: Dish | {
-        beginning_of_day
-        p.spot != none
-        order[p]
-      }
-    } is unsat
-  } 
-}
 
 --------------- EATING TESTS --------------
 
