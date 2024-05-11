@@ -294,13 +294,20 @@ test suite for customer_init {
     } is sat  
   }  
 }
-//TODO
-test suite for kitchen_init {}
-//TODO
-test suite for seat{}
 
-// TODO
-test suite for server_init {}
+test suite for kitchen_init{ 
+  -- no orders are placed in init state
+test expect {
+  kitchen_one: {
+    kitchen_init
+    some k: Kitchen | {
+      Kitchen.placedOrder != none 
+    }
+  } is unsat 
+}
+
+}
+
 ----------- ORDER TESTS -----------
 test suite for order {
   
@@ -359,7 +366,6 @@ test suite for order {
   }
 }
 
-
 ----------- ORDER_TICKET TESTS -----------
 
 test suite for order_ticket {
@@ -399,22 +405,14 @@ test suite for order_ticket {
 
 }
 
-//TODO
-test suite for eating{}
-//TODO
-test suite for serve_ticket{}
-//TODO
-test suite for leave{}
-//TODO
-test suite for customerTransition{}
-//TODO
-test suite for run_states{}
 ----------- SERVE_TICKET TESTS -----------
 //TODO 
 test suite for serve_ticket{
   --??
 
 }
+
+--------------- SEAT TESTS ---------------
 
 test suite for seat {
   -- testing gaurd: party cannot be assigned a table already
@@ -427,6 +425,8 @@ test suite for seat {
     } is unsat
   } 
 }
+
+--------------- ORDER TESTS --------------
 
 test suite for order {
   -- testing guard: no orders can be @ the table
@@ -451,6 +451,8 @@ test suite for order {
   } 
 }
 
+--------------- EATING TESTS --------------
+
 test suite for eating {
   -- testing guard: making sure that kitchen has an order
   test expect {
@@ -463,10 +465,11 @@ test suite for eating {
   } 
 }
 
-test suite for leave {
+--------------- LEAVE TESTS --------------
 
-}
+test suite for leave {}
 
+---------- BEGINNING OF DAY TESTS ---------
 
 test suite for beginning_of_day {
   assert valid_state is necessary for beginning_of_day
