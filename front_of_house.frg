@@ -355,6 +355,7 @@ pred beginning_of_day {
   server_init
   customer_init
   party_init
+  init[Kitchen]
 }
 
 // run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
