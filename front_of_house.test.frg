@@ -148,4 +148,14 @@ test suite for customer_init {
 }
 
 
+test suite for kitchen_init{ 
 
+}
+
+test suite for order_ticket{
+
+}
+
+test suite for serve_ticket{
+  
+}
