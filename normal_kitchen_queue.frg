@@ -40,7 +40,6 @@ pred enqueue[q: one Kitchen, order: one Ticket] {
         order.next' = q.placedOrder
         all links: q.placedOrder.^next | { // for all the nodes that are linked together such that their relation is transitive 
                                 // node a to b and node b to c implies node a to c - all nodes linked from the placedOrder (tail) in the og state
-                                // and all
             links.next' = links.next // ensure the rest of the queue does not change between states
         }
     }
@@ -65,7 +64,7 @@ pred dequeue[q: one Kitchen] {
             head.next = none 
             // and we remove that head node from the queue such that we only keep the other reachable nodes
             // in the next state 
-            q.placedOrder.^next' = q.placedOrder.^next - head // * operation better? 
+            q.placedOrder.^next' = q.placedOrder.^next - head 
         }
         }
     } 

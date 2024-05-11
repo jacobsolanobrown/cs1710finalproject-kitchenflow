@@ -12,85 +12,80 @@ pred wrapperInvalidTable {not invalidState0 and not invalidState1}
 
 test suite for valid_state {
   assert wrapperInvalidTable is necessary for valid_state
+
   -------- tests based on predicates properties --------
-  -- no table exists that is in both Available and Full
   test expect {
+    -- no table exists that is in both Available and Full
     vs_one : {
-        some t: Table | {
-            valid_state 
-            t in Available.tables
-            t in Full.tables 
-        }
-      } is unsat
-    }
+      some t: Table | {
+        valid_state 
+        t in Available.tables
+        t in Full.tables 
+      }
+    } is unsat
 
     -- no table exists that is not in either available or full 
-    test expect {
-      vs_two : {
-        some t: Table | {
-          valid_state 
-          t not in Available.tables
-          t not in Full.tables 
-        }
-      } is unsat
-    }
+    vs_two : {
+      some t: Table | {
+        valid_state 
+        t not in Available.tables
+        t not in Full.tables 
+      }
+    } is unsat
 
     -- table numbers must be unique and valid 
-    test expect {
-      vs_three : {
-        some disj t1, t2: Table | {
-          valid_state 
-          t1.tableNumber = t2.tableNumber
-        }
-      } is unsat
-    }
+    vs_three : {
+      some disj t1, t2: Table | {
+        valid_state 
+        t1.tableNumber = t2.tableNumber
+      }
+    } is unsat
 
     -- table number must be between 1 and 6
-    test expect {
-      vs_four : {
-        some t: Table | {
-          valid_state 
-          (t.tableNumber < 0)
-          (t.tableNumber > 6)
-        }
-      } is unsat
+    vs_four : {
+      some t: Table | {
+        valid_state 
+        (t.tableNumber < 0)
+        (t.tableNumber > 6)
+      }
+    } is unsat
+  }
+
+  -------- example based tests --------
+  -- sat ex: 3 Tables | all with diff nums | all customers waiting 
+  test expect {
+    vs_five : {
+      valid_state
+      all t1, t2, t3: Table | {
+        t1 in Available 
+        t2 in Available 
+        t3 in Full 
+        t1.tableNumber != t2.tableNumber
+        t1.tableNumber != t3.tableNumber
+        t2.tableNumber != t3.tableNumber
+      }
+    } is sat 
     } 
 
-    -------- example based tests --------
-    -- sat ex: 3 Tables | all with diff nums | all customers waiting 
-    test expect {
-      vs_five : {
-        valid_state
-        all t1, t2, t3: Table | {
-          t1 in Available 
-          t2 in Available 
-          t3 in Full 
-          t1.tableNumber != t2.tableNumber
-          t1.tableNumber != t3.tableNumber
-          t2.tableNumber != t3.tableNumber
-        }
-      } is sat 
-    } 
+  -- unsat ex: not all tables have a status 
+  test expect {
+    vs_six: {
+      valid_state
+      some t1, t2, t3: Table | {
+        t1 in Available
+        t2 in Available
+        TableStatus = Available
+      }
+    } is unsat 
+  } 
 
-    -- unsat ex: not all tables have a status 
-    test expect {
-      vs_six: {
-        valid_state
-        some t1, t2, t3: Table | {
-          t1 in Available
-          t2 in Available
-          TableStatus = Available
-        }
-      } is unsat 
-    } 
-
-     -- unsat ex: customer status is none 
-    test expect {
-      vs_seven: {
-        valid_state
-        some c: Customer | {
-          c.status = none 
-        } 
+  -- unsat ex: customer status is none 
+  test expect {
+    vs_seven: {
+      valid_state
+      some c: Customer | {
+        c.status = none 
+      } 
     } is unsat 
   }
 }
@@ -451,6 +446,7 @@ test suite for order_ticket{
 
 test suite for serve_ticket{
   test expect {
+
     -- the ticket should be served and at the party's table 
     valid_serve_ticket : {
       some t1: Ticket, p: Party, k: Kitchen | {
@@ -461,6 +457,7 @@ test suite for serve_ticket{
         next = none -> none
       }
     } is sat 
+
     -- the tickets food was shouldn't not be served to the party's table 
     invalid_no_food_served : {
       some t1: Ticket, p: Party, k: Kitchen | {
@@ -469,6 +466,7 @@ test suite for serve_ticket{
         p.spot.orders' = none
       }
     } is unsat 
+
     -- the ticket should still not exist in the queue
     invalid_ticket_not_dequeued: {
       some t1: Ticket, p: Party, k: Kitchen | {
@@ -478,6 +476,7 @@ test suite for serve_ticket{
         k.placedOrder' = t1
       }
     } is unsat 
+    
     -- the ticket still points to another ticket even after it has been dequeued
     invalid_ticket_still_next: {
       some t1, t2: Ticket, p: Party, k: Kitchen | {
@@ -488,6 +487,30 @@ test suite for serve_ticket{
         next = t1 -> t2
       }
     } is unsat 
+
+    -- the ticket should pass dequeue restraints 
+    invalid_dequeue_conflict: {
+      some p: Party, k: Kitchen {
+        serve_ticket[p]
+        not dequeue[k]
+      } 
+    } is unsat 
+
+    -- follows the wellformedness of the queue
+    wellformed_serve_ticket: {
+      some p: Party | {
+        wellformed
+        serve_ticket[p]
+      }
+    } is sat 
+
+    -- shouldn't not follow the wellformedness of the queue
+    invalid_wellformed_serve_ticket: {
+      some p: Party | {
+        not wellformed 
+        serve_ticket[p]
+      }
+    } is unsat
   }
 }
 
@@ -563,7 +586,6 @@ test suite for eating {
 }
 
 --------------- LEAVE TESTS --------------
-
 test suite for leave {
     
 }
