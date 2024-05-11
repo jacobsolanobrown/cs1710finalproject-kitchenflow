@@ -292,35 +292,6 @@ test suite for customer_init {
 }
 
 ----------- KITCHEN_INIT TESTS -----------
-
-test suite for kitchen_init { 
-  -- no orders are placed in init state
-test expect {
-  kitchen_one: {
-    kitchen_init
-    some k: Kitchen | {
-      Kitchen.placedOrder != none 
-    }
-  } is unsat 
-}
-
-test expect {
-  wellformedKitchen_init: {
-  kitchen_init
-} is sat 
-}
-
--- no orders are placed in init state
-test expect {
-  kitchen_two: {
-    kitchen_init
-    some k: Kitchen | {
-      Kitchen.placedOrder != none 
-    }
-  } is unsat 
-}
-}
-
 pred valid_kitchen_init {
   Kitchen.placedOrder = none
   next = none->none
@@ -337,8 +308,35 @@ pred not_invalid_kitchen_init {
   not invalid_kitchen_init
 }
 
-assert valid_kitchen_init is necessary for kitchen_init
-assert not_invalid_kitchen_init is necessary for kitchen_init
+test suite for kitchen_init { 
+  -- no orders are placed in init state
+  test expect {
+    -- there should be no orders in the kitchen yet 
+    kitchen_one: {
+      kitchen_init
+      some k: Kitchen | {
+        Kitchen.placedOrder != none 
+      }
+    } is unsat 
+    
+    -- kitchen should be wellformed 
+    wellformedKitchen_init: {
+      wellformed
+      kitchen_init
+    } is sat 
+
+    -- no orders are placed in init state
+    kitchen_two: {
+      kitchen_init
+      some k: Kitchen | {
+        Kitchen.placedOrder != none 
+      }
+    } is unsat 
+  }
+
+  assert valid_kitchen_init is necessary for kitchen_init
+  assert not_invalid_kitchen_init is necessary for kitchen_init
+}
 
 ----------- ORDER TESTS -----------
 
@@ -420,6 +418,8 @@ test suite for order {
 }
 
 ----------- ORDER_TICKET TESTS -----------
+
+pred valid
 
 test suite for order_ticket{
   test expect {
@@ -513,8 +513,6 @@ test suite for seat {
     } is unsat
   } 
 }
-
-
 
 --------------- EATING TESTS --------------
 
