@@ -1,7 +1,10 @@
-#lang forge/temporal
+#lang forge
 
-open "normal_kitchen_queue.frg"
 open "front_of_house.frg"
+open "normal_kitchen_queue.frg"
+
+option problem_type temporal 
+
 
 ----- TESTING -----
 

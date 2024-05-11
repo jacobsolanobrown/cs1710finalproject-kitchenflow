@@ -46,7 +46,7 @@ one sig Available, Full extends TableStatus {}
 
 /*
 --------------- VALID STATE --------------
-Ensures that each state is valid - no crazy instances
+/*Ensures that each state is valid - no crazy instances
 --> Tables are either Available OR Full | can't be both
 --> Customers are either Waiting or Seated or Ordered or Ready4Check | cant be none
 --> Table numbers must be positive/in a specific range [1-5]
@@ -381,7 +381,7 @@ pred customer_lifecycle {
 
 // run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
 // run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
+// run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
 --------------- RUN STATEMENTS for normal_kitchen_queue.frg --------------
 
@@ -392,7 +392,6 @@ pred four_tickets{
     // State 0 - empty kitchen
     kitchen_init
 
-    //setup[o]... q.placeordr'= o
     // State 1 - 1st order in!
     Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
     next' = none->none // no next node yet since only one node in queue
@@ -462,6 +461,10 @@ pred order_and_serve {
 // } for 4 Ticket, 1 Kitchen
 
 --> Shows enqueing and dequing 2 tickets in a queue 
+// run {
+//     wellformed
+//     order_and_serve
+// } for 2 Ticket, 1 Kitchen
 // run {
 //     wellformed
 //     order_and_serve

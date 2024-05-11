@@ -79,7 +79,7 @@ test suite for valid_state {
     } is unsat 
   } 
 
-     -- unsat ex: customer status is none 
+  -- unsat ex: customer status is none 
   test expect {
     vs_seven: {
       valid_state
@@ -476,7 +476,7 @@ test suite for serve_ticket{
         k.placedOrder' = t1
       }
     } is unsat 
-      
+    
     -- the ticket still points to another ticket even after it has been dequeued
     invalid_ticket_still_next: {
       some t1, t2: Ticket, p: Party, k: Kitchen | {
@@ -487,25 +487,32 @@ test suite for serve_ticket{
         next = t1 -> t2
       }
     } is unsat 
-    
-    -- should follow wellformedness
-    wellformed_serve: {
+
+    -- the ticket should pass dequeue restraints 
+    invalid_dequeue_conflict: {
+      some p: Party, k: Kitchen {
+        serve_ticket[p]
+        not dequeue[k]
+      } 
+    } is unsat 
+
+    -- follows the wellformedness of the queue
+    wellformed_serve_ticket: {
       some p: Party | {
         wellformed
         serve_ticket[p]
       }
     } is sat 
 
-    -- shouldn't not be wellformed dequeing
-    not_wellformed_serve: {
+    -- shouldn't not follow the wellformedness of the queue
+    invalid_wellformed_serve_ticket: {
       some p: Party | {
-        not wellformed
+        not wellformed 
         serve_ticket[p]
       }
-    } is unsat 
+    } is unsat
   }
 }
-
 
 --------------- SEAT TESTS ---------------
 
