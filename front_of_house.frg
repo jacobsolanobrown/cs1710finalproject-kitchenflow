@@ -4,8 +4,6 @@ open "normal_kitchen_queue.frg"
 
 option problem_type temporal 
 
-//TODO: take out customersAtTable field
-
 // EXTRA FUNCTIONALITY:
 --> add price to dish 
 --> have a set --> cardinality is number of custiomers in party, each set element represents a menu option, each num coresponds to menu item 
@@ -39,7 +37,6 @@ sig Table {
   tableNumber: one Int,
   capacity: one Int,
   var orders: set Dish
-  // price: lone Int
 }
 
 abstract sig TableStatus {
@@ -47,19 +44,9 @@ abstract sig TableStatus {
 }
 one sig Available, Full extends TableStatus {} 
 
----------------- Dish ----------------
-///?? KEEP IN HERE OR IN QUEUE 
-
-// abstract sig Dish {
-//    price: one Int
-// }
-// sig Burger extends Dish {}
-// sig Salad extends Dish {}
-// sig ChickTenders extends Dish {}
-
 /*
 --------------- VALID STATE --------------
-Ensures that each state is valid - no crazy instances
+/*Ensures that each state is valid - no crazy instances
 --> Tables are either Available OR Full | can't be both
 --> Customers are either Waiting or Seated or Ordered or Ready4Check | cant be none
 --> Table numbers must be positive/in a specific range [1-5]
@@ -374,9 +361,8 @@ pred beginning_of_day {
   kitchen_init
 }
 
-// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
-
---> customers_transition_with_party shows customers transitioning through the CustomerStatus states with their parties - nothing else is monitored here 
+--> customers_transition_with_party shows customers transitioning through the CustomerStatus states with their parties
+-- only customer states change here --> tables/orders/etc. don't 
 pred customers_transition_with_party {
   beginning_of_day
   always {
@@ -386,108 +372,99 @@ pred customers_transition_with_party {
   }
 }
 
-// run {customers_transition_with_party} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
---> customer_lifecycle takes one party through a resturant lifecycle 
+--> customer_lifecycle takes one party through a full resturant lifecycle 
 pred customer_lifecycle {
   beginning_of_day
   always wellformed
   some p: Party | {always run_states[p]}
 }
 
-run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
-
+// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table
+// run {customer_lifecycle} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 // run {seat_customers} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
-
-pred seat_first{
-  beginning_of_day
-  {some p: Party {
-    seat[p]
-  }} until {all_parties_seated}
-}
-
-// run {beginning_of_day} for 5 Int, exactly 7 Person, exactly 5 Customer, exactly 2 Server, exactly 4 Table, exactly 2 Party
 
 --------------- RUN STATEMENTS for normal_kitchen_queue.frg --------------
 
 -- Only Enqueuing Trace --
 pred four_tickets{
-     some order1, order2, order3, order4: Ticket | {
-            #(order1 + order2 + order3 + order4) = 4
-            // State 0 - empty kitchen
-            kitchen_init
+  some order1, order2, order3, order4: Ticket | {
+    #(order1 + order2 + order3 + order4) = 4
+    // State 0 - empty kitchen
+    kitchen_init
 
-            //setup[o]... q.placeordr'= o
-            // State 1 - 1st order in!
-            Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
-            next' = none->none // no next node yet since only one node in queue
+    // State 1 - 1st order in!
+    Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
+    next' = none->none // no next node yet since only one node in queue
 
-            // State 2 - 2nd order in!
-            Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
-            next'' = order2->order1 // previous tail becomes head/next 
+    // State 2 - 2nd order in!
+    Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
+    next'' = order2->order1 // previous tail becomes head/next 
 
-            // State 3 - 3rd order in!
-            Kitchen.placedOrder''' = order3
-            next''' = order3->order2 + order2->order1
+    // State 3 - 3rd order in!
+    Kitchen.placedOrder''' = order3
+    next''' = order3->order2 + order2->order1
 
-            // State 4 - 4th order in!
-            Kitchen.placedOrder'''' = order4
-            next'''' = order4->order3 + order3->order2 + order2->order1
+    // State 4 - 4th order in!
+    Kitchen.placedOrder'''' = order4
+    next'''' = order4->order3 + order3->order2 + order2->order1
 
-            // make sure that it follows our enqueue model 
-            enqueue[Kitchen, order1]
-            next_state enqueue[Kitchen, order2]
-            next_state next_state enqueue[Kitchen, order3]
-            next_state next_state next_state enqueue[Kitchen, order4]
-        }
+    // make sure that it follows our enqueue model 
+    enqueue[Kitchen, order1]
+    next_state enqueue[Kitchen, order2]
+    next_state next_state enqueue[Kitchen, order3]
+    next_state next_state next_state enqueue[Kitchen, order4]
+  }
 }
 
 -- Enqueue and Dequeue Trace --
 pred order_and_serve {
-         some order1, order2: Ticket, t: Table | {
-            // State 0 - nothing in kitchen
-            kitchen_init
-            t.orders = none
+  some order1, order2: Ticket, t: Table | {
+    // State 0 - nothing in kitchen
+    kitchen_init
+    t.orders = none
 
-            // State 1 - 1st order in!
-            Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
-            next' = none->none // no next node yet since only one node in queue
-            t.orders' = t.orders
-
-
-            // State 2 - 2nd order in!
-            Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
-            next'' = order2->order1 // previous tail becomes head/next 
-            t.orders'' = t.orders'
+    // State 1 - 1st order in!
+    Kitchen.placedOrder' = order1 // just the tail of queue - 1st order in!
+    next' = none->none // no next node yet since only one node in queue
+    t.orders' = t.orders
 
 
-            // State 3 - 1st order out!
-            Kitchen.placedOrder''' = order2
-            next''' = none->none
-            t.orders''' = t.orders'' + order1.foodOrder
+    // State 2 - 2nd order in!
+    Kitchen.placedOrder'' = order2 // new Ticket is added to the tail of the queue - 2nd order in!
+    next'' = order2->order1 // previous tail becomes head/next 
+    t.orders'' = t.orders'
 
-            // State 4 - 2nd order out!
-            initKitchen
-            t.orders'''' = t.orders''' + order2.foodOrder
 
-            // make sure that it follows our enqueue and dequeue model 
-            enqueue[Kitchen, order1]
-            next_state enqueue[Kitchen, order2]
-            next_state next_state dequeue[Kitchen]
-            next_state next_state next_state dequeue[Kitchen]
-        }
+    // State 3 - 1st order out!
+    Kitchen.placedOrder''' = order2
+    next''' = none->none
+    t.orders''' = t.orders'' + order1.foodOrder
+
+    // State 4 - 2nd order out!
+    kitchen_init
+    t.orders'''' = t.orders''' + order2.foodOrder
+
+    // make sure that it follows our enqueue and dequeue model 
+    enqueue[Kitchen, order1]
+    next_state enqueue[Kitchen, order2]
+    next_state next_state dequeue[Kitchen]
+    next_state next_state next_state dequeue[Kitchen]
+  }
 }
 
 --- Run Statements --
 
---> ONLY SHOWS ENQUEUING
+--> Only shows enqueing for 4 tickets in a queue  
 // run {
 //     wellformed
 //     four_tickets
 // } for 4 Ticket, 1 Kitchen
 
---> SHOWS ENQUEUE + DEQUEUE
+--> Shows enqueing and dequing 2 tickets in a queue 
+// run {
+//     wellformed
+//     order_and_serve
+// } for 2 Ticket, 1 Kitchen
 // run {
 //     wellformed
 //     order_and_serve

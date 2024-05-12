@@ -7,18 +7,19 @@ abstract sig Dish {}
 -- menu options 
 one sig Chicken, Burger, Tofu extends Dish {}
 
-// TODO: sets of tts where each int represents a menu option 
-
 ---------------- Kitchen ----------------
+-- kitchen queue node that points to other nodes in queue -- 
 sig Ticket {
     var next: lone Ticket,
     foodOrder: one Dish
 }
 
+-- pointer to tail of kitchen queue --
 one sig Kitchen { // Queue Data Structure
     var placedOrder: lone Ticket // tail of the Queue
 }
 
+-- enqueue a ticket to tail of queue --
 pred enqueue[q: one Kitchen, order: one Ticket] {
     // if there is no queue - the tail is empty - then make the order the tail and have no other pointer
     (q.placedOrder = none) implies { // empty queue
@@ -39,12 +40,12 @@ pred enqueue[q: one Kitchen, order: one Ticket] {
         order.next' = q.placedOrder
         all links: q.placedOrder.^next | { // for all the nodes that are linked together such that their relation is transitive 
                                 // node a to b and node b to c implies node a to c - all nodes linked from the placedOrder (tail) in the og state
-                                // and all - TODO: if change the operation to * reflexive-transtive what does that imply ? 
             links.next' = links.next // ensure the rest of the queue does not change between states
         }
     }
 }
 
+-- dequeue a ticket from head of queue --
 pred dequeue[q: one Kitchen] { 
     q.placedOrder != none // the queue cannot be empty 
     // if there just the tail (no next) - one order in queue 
@@ -63,13 +64,14 @@ pred dequeue[q: one Kitchen] {
             head.next = none 
             // and we remove that head node from the queue such that we only keep the other reachable nodes
             // in the next state 
-            q.placedOrder.^next' = q.placedOrder.^next - head // * operation better? 
+            q.placedOrder.^next' = q.placedOrder.^next - head 
         }
         }
     } 
 }
 
 ------------ Wellformed Kitchen ------------
+-- ensure wellformness for the kitchen queue --
 pred wellformed {   
     // for all the Tickets
     all order: Ticket | {

@@ -1,10 +1,14 @@
-#lang forge/temporal
+#lang forge
 
-open "normal_kitchen_queue.frg"
 open "front_of_house.frg"
+open "normal_kitchen_queue.frg"
+
+option problem_type temporal 
+
 
 ----- TESTING -----
 
+----- TESTING ENQUEUE -----
 test suite for enqueue {
     test expect {
         -- enqueue -> enqueue
@@ -47,6 +51,7 @@ test suite for enqueue {
         } is unsat
     }
 }
+----- TESTING DEQUEUE -----
 
 test suite for dequeue {
     test expect {
@@ -148,6 +153,8 @@ test suite for dequeue {
     }
 }
 
+----- TESTING WELLFORMEDNESS -----
+
 // for wellformed assertion 
 pred validWellformed {
     all order: Ticket | {
@@ -158,14 +165,12 @@ pred validWellformed {
 
 // for wellformed assertion 
 pred nonvalidWellformed {
-    some k: Kitchen | {
-        not kitchen_init // not at the empty state (stuff in queue)
-        all order: Ticket | {
-            // the same order cannot be linked to itself - but for a bad wellformed 
-            // it can 
-            order in order.^next
-        }
-    }
+    not kitchen_init // not at the empty state (stuff in queue)
+    all order: Ticket | {
+        // the same order cannot be linked to itself - but for a bad wellformed 
+        // it can 
+        order in order.^next
+    } 
 }
 
 // for wellformed assertion 
@@ -222,4 +227,3 @@ test suite for wellformed {
     assert notNonvalidWellformed is necessary for wellformed
 }
 
-// TODO: make assertions for enquue / dequeue

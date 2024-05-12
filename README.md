@@ -37,19 +37,14 @@ However, when creating our model, we quickly identified how many components need
 
 ### Model Visualization | Running our Model: 
 
--- N/A
+To view our model, use the built in sterling visualizer and run statement we have at the bottom of the front_of_house.frg file. 
 
--- TODO: explain different run statements and what components of model they show --> they are pretty well commented so we might not need to write much
+There are a few predicates that that can be found in the ~RUN STATEMENTS for front_of_house.frg~ section of our front_of_house.frg file that can be run to show our model. Each predicate is well commented about its functionality and relation to the model. To run each of then, place then in the run{} statement at the bottom of front_of_house.frg. 
 
 ### Limits to every model exist, here are the limits to our restaurant model:
-TODO: fill in 
-- talk about scope and limits to model 
-- defining table sizes 
-    - 
-- kitchen queue limits 
-    - Limited by state counters
-- limits about parties moving simultaneously through the restaurant 
+- The scope of our model is pre set at a pretty small scale. We made this design choice for run time purposes but expanding this would be best for a more realistic view of a restaurant flow. A concrete example of this is our current table size representation. We limit the table occupancies to a max of two or four. Parties that meet or are smaller than these occupancies can sit at a table. Most restaurants have bigger tables for large groups; however, we decided it was best to keep these bigger examples out of our model for the scope of this project. 
 
+- Another limitation in our model is simultaneous movements of parties through the restaurant. Currently, one party moves through the restaurant flow at a time. This is not realistic but something we struggled to model with forge correctly. For example, ideally when one part  has ordered another could be seated in the next state. With all the moving parts in a restaurant, we found it difficult to accurately define rules to let people move through the restaurant without over / under constraining the model. 
 
 ### Stakeholders 
 
@@ -64,6 +59,8 @@ This tool would directly impact the <b> kitchen staff </b>, improving their work
 <b> Restaurant Owners </b> are another vital stakeholder. A faster kitchen queue enables a restaurant to turn tables more quickly, ultimately increasing revenue potential. This tool could assist restaurant owners in learning how to enhance their kitchen flow to maximize profits.
 
 Lastly this tool could improve <b> customers </b> experience at the restaurant!
+
+### Here is our demo [video!](https://www.youtube.com/watch?v=bZxGMKSKqTQ).
 
 ### Collaborators
 - Our mentor @TA Ezra!
