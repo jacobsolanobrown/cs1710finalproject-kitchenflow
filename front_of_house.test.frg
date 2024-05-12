@@ -295,31 +295,31 @@ test suite for customer_init {
 ----------- KITCHEN_INIT TESTS -----------
 
 test suite for kitchen_init { 
-  -- no orders are placed in init state
-test expect {
-  kitchen_one: {
-    kitchen_init
-    some k: Kitchen | {
-      Kitchen.placedOrder != none 
-    }
-  } is unsat 
-}
-
-test expect {
-  wellformedKitchen_init: {
-  kitchen_init
-} is sat 
-}
-
       -- no orders are placed in init state
-test expect {
-  kitchen_two: {
-    kitchen_init
-    some k: Kitchen | {
-      Kitchen.placedOrder != none 
+    test expect {
+      kitchen_one: {
+        kitchen_init
+        some k: Kitchen | {
+          Kitchen.placedOrder != none 
+        }
+      } is unsat 
     }
-  } is unsat 
-}
+
+    test expect {
+      wellformedKitchen_init: {
+      kitchen_init
+    } is sat 
+    }
+
+          -- no orders are placed in init state
+    test expect {
+      kitchen_two: {
+        kitchen_init
+        some k: Kitchen | {
+          Kitchen.placedOrder != none 
+        }
+      } is unsat 
+    }
 }
 
 pred valid_kitchen_init {
@@ -446,7 +446,7 @@ test suite for order_ticket{
 
 
 ----------- SERVE_TICKET TESTS -----------
-
+//jacob
 test suite for serve_ticket{
   
 }
