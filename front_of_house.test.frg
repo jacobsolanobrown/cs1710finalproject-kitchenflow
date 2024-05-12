@@ -525,10 +525,59 @@ test suite for seat {
         seat[p]
       }
     } is unsat
-  } 
 
-  //TODO - finish @Liliana 
-}
+    validSeat0: {
+      some p: Party, c: Customer | {
+        p.spot = none 
+        c in p.people 
+        c.status = Waiting 
+        seat[p]
+        c.status' = Seated
+      }
+    } is sat
+
+    invalidSeat0: {
+        some p: Party, c: Customer | {
+        p.spot = none 
+        c not in p.people 
+        c.status = Waiting 
+        seat[p]
+        c.status' = Seated
+      }
+    } is unsat
+
+    validSeat1: {
+      some p: Party, c: Customer, t: Table | {
+        p.spot = none 
+        c in p.people 
+        c.status = Waiting 
+        seat[p]
+        c.status' = Seated
+        t.capacity = p.size
+        p.spot' = t
+        t not in Available.tables
+        t in Full.tables
+      }
+
+    } is sat
+
+    invalidSeat2: {
+      some p: Party, c: Customer, t: Table | {
+        p.spot = none 
+        c not in p.people 
+        c.status = Waiting 
+        seat[p]
+        c.status' = Seated
+        t.capacity = p.size
+        p.spot' = t
+        t in Available.tables
+        t not in Full.tables
+      }
+
+    } is unsat
+    }
+
+  } 
 
 --------------- EATING TESTS --------------
 
@@ -596,9 +645,43 @@ test suite for leave {
         leave[p]
       }
     } is unsat
+
+    validLeave0: {
+      some p: Party | {
+        p.spot.orders not in Kitchen.placedOrder.^next implies leave[p]
+      }
+    } is sat
+
+    validLeave1: {
+      some p: Party, c: Customer {
+        c in p.people 
+        c.status = Ready4Check
+        leave[p] 
+        c in p.people and c.status' = Waiting
+      }
+    } is sat
+
+    invalidLeave0: {
+      some p: Party, c: Customer {
+        c not in p.people 
+        c.status = Ready4Check
+        leave[p] 
+        c not in p.people and c.status' = Waiting
+      }
+    } is unsat
+
+    invalidLeave1: {
+      some p: Party, c: Customer, t: Table | {
+        c not in p.people 
+        p.spot = t
+        c.status = Ready4Check
+        leave[p] 
+        c in p.people and c.status' = Waiting
+        p.spot' = none
+      }
+    } is unsat
   }
 
-  //TODO - finish @Liliana 
 }
 
 ---------- BEGINNING OF DAY TESTS ---------
